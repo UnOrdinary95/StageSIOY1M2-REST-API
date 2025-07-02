@@ -1,11 +1,227 @@
 openapi: 3.0.0
 
 info:
-	title: Stage SIOY1M2 - REST API du site de vente en ligne
-	description: |
-		Une API REST sécurisée pour gérer les utilisateurs, les produits, les listes de souhaits et les historiques d'achats.
-	version: 1.0.0
-	
+  title: Stage SIOY1M2 - REST API du site de vente en ligne
+  description: |
+    Une API REST sécurisée pour gérer les utilisateurs, les produits, les listes de souhaits et les historiques d'achats.
+  version: 1.0.0
+
 servers:
-	- url: http://localhost:3000
-		description: Serveur local de développement
+  - url: http://localhost:3000
+    description: Serveur local de développement
+
+paths:
+  /users:
+    post:
+      summary: Créer un nouvel utilisateur
+      description: Crée un nouvel utilisateur dans la base de données
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserInput"
+            example:
+              name: "John Doe"
+              email: "john.doe@example.com"
+              password: "motdepasse123"
+      responses:
+        "201":
+          description: Utilisateur créé avec succès
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "500":
+          description: Erreur serveur
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    get:
+      summary: Récupérer tous les utilisateurs
+      description: Récupère la liste de tous les utilisateurs
+      tags:
+        - Users
+      responses:
+        "200":
+          description: Liste des utilisateurs récupérée avec succès
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+        "500":
+          description: Erreur serveur
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /users/{id}:
+    get:
+      summary: Récupérer un utilisateur par ID
+      description: Récupère les informations d'un utilisateur spécifique
+      tags:
+        - Users
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de l'utilisateur
+          schema:
+            type: string
+            pattern: "^[0-9a-fA-F]{24}$"
+            example: "507f1f77bcf86cd799439011"
+      responses:
+        "200":
+          description: Utilisateur trouvé
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "500":
+          description: Erreur serveur ou utilisateur non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    put:
+      summary: Mettre à jour un utilisateur
+      description: Met à jour les informations d'un utilisateur existant
+      tags:
+        - Users
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de l'utilisateur à modifier
+          schema:
+            type: string
+            pattern: "^[0-9a-fA-F]{24}$"
+            example: "507f1f77bcf86cd799439011"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserInput"
+            example:
+              name: "John Doe Updated"
+              email: "john.updated@example.com"
+      responses:
+        "200":
+          description: Utilisateur mis à jour avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Utilisateur mis à jour avec succès"
+        "500":
+          description: Erreur serveur ou utilisateur non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    delete:
+      summary: Supprimer un utilisateur
+      description: Supprime un utilisateur de la base de données
+      tags:
+        - Users
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de l'utilisateur à supprimer
+          schema:
+            type: string
+            pattern: "^[0-9a-fA-F]{24}$"
+            example: "507f1f77bcf86cd799439011"
+      responses:
+        "200":
+          description: Utilisateur supprimé avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Utilisateur supprimé avec succès"
+        "500":
+          description: Erreur serveur ou utilisateur non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: ID unique de l'utilisateur (MongoDB ObjectId)
+          example: "507f1f77bcf86cd799439011"
+        name:
+          type: string
+          description: Nom complet de l'utilisateur
+          example: "John Doe"
+        email:
+          type: string
+          format: email
+          description: Adresse email de l'utilisateur
+          example: "john.doe@example.com"
+        password:
+          type: string
+          description: Mot de passe de l'utilisateur
+          example: "motdepasse123"
+      required:
+        - name
+        - email
+        - password
+
+    UserInput:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Nom complet de l'utilisateur
+          example: "John Doe"
+        email:
+          type: string
+          format: email
+          description: Adresse email de l'utilisateur
+          example: "john.doe@example.com"
+        password:
+          type: string
+          description: Mot de passe de l'utilisateur
+          example: "motdepasse123"
+      required:
+        - name
+        - email
+        - password
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Message d'erreur
+          example: "Erreur lors de la récupération de l'utilisateur"
+      required:
+        - error
+
+tags:
+  - name: Users
+    description: Opérations liées à la gestion des utilisateurs
