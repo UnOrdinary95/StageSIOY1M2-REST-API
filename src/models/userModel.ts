@@ -42,9 +42,7 @@ export const findOneUser = async (id: string) => {
     try {
         const db = getDb();
         const user = await db.collection(COLLECTION_NAME).findOne({ _id: new ObjectId(id) });
-        if (
-            !user) {
-
+        if (!user) {
             throw new Error("Utilisateur non trouvé");
         }
         return user;
