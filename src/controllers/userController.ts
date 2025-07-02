@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { deleteOneUser, findAllUsers, findOneUser, insertOneUser, patchCart, patchPurchaseHistory, updateOneUser } from "../models/userModel";
+import { deleteOneUser, findAllUsers, findOneUser, insertOneUser, patchCart, patchPurchaseHistory, patchWishlist, updateOneUser } from "../models/userModel";
 import { CartItem } from "../interfaces/CartItem";
 
 // CREATE
@@ -75,6 +75,19 @@ export const updateUserPurchaseHistoryById = async (req: Request, res: Response)
     catch (err) {
         console.error("Erreur lors de la mise à jour de l'historique d'achats de l'utilisateur :", err);
         res.status(500).json({ error: "Erreur lors de la mise à jour de l'historique d'achats de l'utilisateur" });
+    }
+};
+
+export const updatedWishlistById = async (req: Request, res: Response) => {
+    const userId = req.params.id;
+    const productId = req.body.productId;
+    try {
+        const updatedWishlist = await patchWishlist(userId, productId);
+        res.status(200).json(updatedWishlist);
+    }
+    catch (err) {
+        console.error("Erreur lors de la mise à jour de la wishlist de l'utilisateur :", err);
+        res.status(500).json({ error: "Erreur lors de la mise à jour de la wishlist de l'utilisateur" });
     }
 };
 

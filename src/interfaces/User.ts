@@ -1,6 +1,7 @@
 import { ObjectId } from "mongodb";
 import { CartItem } from "./CartItem";
 import { PurchaseHistoryItem } from "./PurchaseHistoryItem";
+import { WishlistItem } from "./WishlistItem";
 
 export interface User {
     _id?: ObjectId;
@@ -9,4 +10,5 @@ export interface User {
     password: string;
     cart?: CartItem[];
     purchaseHistory?: PurchaseHistoryItem[];
+    wishlist?: WishlistItem[];
 }

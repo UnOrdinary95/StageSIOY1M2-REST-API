@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createUser, deleteUserById, getUserById, getUsers, updateUserById, updateUserCartById, updateUserPurchaseHistoryById } from "../controllers/userController";
+import { createUser, deleteUserById, getUserById, getUsers, updatedWishlistById, updateUserById, updateUserCartById, updateUserPurchaseHistoryById } from "../controllers/userController";
 
 const userRouter = Router();
 
@@ -14,6 +14,7 @@ userRouter.get("/:id", getUserById);
 userRouter.put("/:id", updateUserById);
 userRouter.patch("/:id/cart", updateUserCartById);
 userRouter.patch("/:id/history", updateUserPurchaseHistoryById);
+userRouter.patch("/:id/wishlist", updatedWishlistById);
 
 // DELETE
 userRouter.delete("/:id", deleteUserById);

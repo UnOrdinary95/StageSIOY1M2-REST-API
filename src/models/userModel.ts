@@ -3,6 +3,7 @@ import { ObjectId } from "mongodb";
 import { User } from "../interfaces/User";
 import { CartItem } from "../interfaces/CartItem";
 import { PurchaseHistoryItem } from "../interfaces/PurchaseHistoryItem";
+import { WishlistItem } from "../interfaces/WishlistItem";
 import { findOneProduct } from "./productModel";
 
 const COLLECTION_NAME = "User";
@@ -125,13 +126,57 @@ export const patchPurchaseHistory = async (id: string, cart: CartItem[]) => {
 
         if (result.matchedCount === 0) throw new Error("Utilisateur non trouvé");
 
-        await patchCart(id, []); 
+        await patchCart(id, []);
 
         return { message: "Historique d'achats mis à jour avec succès" };
     }
     catch (err) {
         console.error("Erreur : ", err);
         throw new Error("Erreur lors de la mise à jour de l'historique d'achats de l'utilisateur");
+    }
+};
+
+export const patchWishlist = async (id: string, productIdBody: string) => {
+    try {
+        const db = getDb();
+
+        const product = await findOneProduct(productIdBody);
+
+        if (!product) {
+            throw new Error("Produit non trouvé");
+        }
+
+        const user = await findOneUser(id);
+
+        if (!user) {
+            throw new Error("Utilisateur non trouvé");
+        }
+
+        let updatedWishlist: WishlistItem[] = user.wishlist ? [...user.wishlist] : [];
+        let added = true;
+        if (user.wishlist?.some(item => item.productId === productIdBody)) {
+            updatedWishlist = updatedWishlist.filter(item => item.productId !== productIdBody);
+            added = false;
+        } else {
+            updatedWishlist.push({ productId: productIdBody });
+        }
+
+        const result = await db.collection(COLLECTION_NAME).updateOne(
+            { _id: new ObjectId(id) },
+            { $set: { wishlist: updatedWishlist } }
+        );
+
+        if (result.matchedCount === 0) {
+            throw new Error("Utilisateur non trouvé");
+        }
+
+        if (!added) {
+            return { message: "Produit retiré de la liste de souhaits" };
+        }
+        return { message: "Liste de souhaits mise à jour avec succès" };
+    } catch (err) {
+        console.error("Erreur : ", err);
+        throw new Error("Erreur lors de la mise à jour de la liste de souhaits de l'utilisateur");
     }
 };
 
@@ -157,5 +202,4 @@ async function productExists(cart: CartItem[]): Promise<void> {
     for (const item of cart) {
         await findOneProduct(item.productId);
     }
-}
-
+};
