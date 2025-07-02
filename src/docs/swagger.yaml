@@ -11,6 +11,162 @@ servers:
     description: Serveur local de développement
 
 paths:
+  /products:
+    post:
+      summary: Créer un nouveau produit
+      description: Crée un nouveau produit dans la base de données
+      tags:
+        - Products
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductInput"
+            example:
+              name: "iPhone 15 Pro"
+              price: 1199.99
+              inStock: true
+              description: "Le dernier smartphone d'Apple avec puce A17 Pro"
+      responses:
+        "201":
+          description: Produit créé avec succès
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "500":
+          description: Erreur serveur
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    get:
+      summary: Récupérer tous les produits
+      description: Récupère la liste de tous les produits (sans description)
+      tags:
+        - Products
+      responses:
+        "200":
+          description: Liste des produits récupérée avec succès
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProductSummary"
+        "500":
+          description: Erreur serveur
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /products/{id}:
+    get:
+      summary: Récupérer un produit par ID
+      description: Récupère les informations complètes d'un produit spécifique
+      tags:
+        - Products
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID du produit
+          schema:
+            type: string
+            pattern: "^[0-9a-fA-F]{24}$"
+            example: "507f1f77bcf86cd799439011"
+      responses:
+        "200":
+          description: Produit trouvé
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "500":
+          description: Erreur serveur ou produit non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    put:
+      summary: Mettre à jour un produit
+      description: Met à jour les informations d'un produit existant
+      tags:
+        - Products
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID du produit à modifier
+          schema:
+            type: string
+            pattern: "^[0-9a-fA-F]{24}$"
+            example: "507f1f77bcf86cd799439011"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductInput"
+            example:
+              name: "iPhone 15 Pro Max"
+              price: 1299.99
+              inStock: false
+              description: "Version mise à jour avec écran plus grand"
+      responses:
+        "200":
+          description: Produit mis à jour avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Produit mis à jour avec succès"
+        "500":
+          description: Erreur serveur ou produit non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    delete:
+      summary: Supprimer un produit
+      description: Supprime un produit de la base de données
+      tags:
+        - Products
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID du produit à supprimer
+          schema:
+            type: string
+            pattern: "^[0-9a-fA-F]{24}$"
+            example: "507f1f77bcf86cd799439011"
+      responses:
+        "200":
+          description: Produit supprimé avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Produit supprimé avec succès"
+        "500":
+          description: Erreur serveur ou produit non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
   /users:
     post:
       summary: Créer un nouvel utilisateur
@@ -212,6 +368,85 @@ components:
         - email
         - password
 
+    Product:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: ID unique du produit (MongoDB ObjectId)
+          example: "507f1f77bcf86cd799439011"
+        name:
+          type: string
+          description: Nom du produit
+          example: "iPhone 15 Pro"
+        price:
+          type: number
+          format: float
+          description: Prix du produit en euros
+          example: 1199.99
+        inStock:
+          type: boolean
+          description: Disponibilité du produit en stock
+          example: true
+        description:
+          type: string
+          description: Description détaillée du produit
+          example: "Le dernier smartphone d'Apple avec puce A17 Pro"
+      required:
+        - name
+        - price
+        - inStock
+
+    ProductSummary:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: ID unique du produit (MongoDB ObjectId)
+          example: "507f1f77bcf86cd799439011"
+        name:
+          type: string
+          description: Nom du produit
+          example: "iPhone 15 Pro"
+        price:
+          type: number
+          format: float
+          description: Prix du produit en euros
+          example: 1199.99
+        inStock:
+          type: boolean
+          description: Disponibilité du produit en stock
+          example: true
+      required:
+        - name
+        - price
+        - inStock
+
+    ProductInput:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Nom du produit
+          example: "iPhone 15 Pro"
+        price:
+          type: number
+          format: float
+          description: Prix du produit en euros
+          example: 1199.99
+        inStock:
+          type: boolean
+          description: Disponibilité du produit en stock
+          example: true
+        description:
+          type: string
+          description: Description détaillée du produit
+          example: "Le dernier smartphone d'Apple avec puce A17 Pro"
+      required:
+        - name
+        - price
+        - inStock
+
     Error:
       type: object
       properties:
@@ -225,3 +460,5 @@ components:
 tags:
   - name: Users
     description: Opérations liées à la gestion des utilisateurs
+  - name: Products
+    description: Opérations liées à la gestion des produits
