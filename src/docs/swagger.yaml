@@ -320,6 +320,158 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+  /users/{id}/cart:
+   patch:
+     summary: Mettre à jour le panier d'un utilisateur
+     description: Met à jour le panier d'un utilisateur existant
+     tags:
+       - Users
+     parameters:
+       - name: id
+         in: path
+         required: true
+         description: ID de l'utilisateur
+         schema:
+           type: string
+           pattern: "^[0-9a-fA-F]{24}$"
+           example: "507f1f77bcf86cd799439011"
+     requestBody:
+       required: true
+       content:
+         application/json:
+           schema:
+             type: object
+             properties:
+               cart:
+                 type: array
+                 items:
+                   $ref: "#/components/schemas/CartItem"
+             required:
+               - cart
+           example:
+             cart:
+               - productId: "507f1f77bcf86cd799439011"
+                 quantity: 2
+               - productId: "507f1f77bcf86cd799439012"
+                 quantity: 1
+     responses:
+       "200":
+         description: Panier mis à jour avec succès
+         content:
+           application/json:
+             schema:
+               type: object
+               properties:
+                 message:
+                   type: string
+                   example: "Panier mis à jour avec succès"
+       "500":
+         description: Erreur serveur ou utilisateur non trouvé
+         content:
+           application/json:
+             schema:
+               $ref: "#/components/schemas/Error"
+
+  /users/{id}/history:
+   patch:
+     summary: Ajouter un achat à l'historique d'un utilisateur
+     description: Ajoute le panier actuel à l'historique d'achats et vide le panier
+     tags:
+       - Users
+     parameters:
+       - name: id
+         in: path
+         required: true
+         description: ID de l'utilisateur
+         schema:
+           type: string
+           pattern: "^[0-9a-fA-F]{24}$"
+           example: "507f1f77bcf86cd799439011"
+     requestBody:
+       required: true
+       content:
+         application/json:
+           schema:
+             type: object
+             properties:
+               cart:
+                 type: array
+                 items:
+                   $ref: "#/components/schemas/CartItem"
+             required:
+               - cart
+           example:
+             cart:
+               - productId: "507f1f77bcf86cd799439011"
+                 quantity: 2
+               - productId: "507f1f77bcf86cd799439012"
+                 quantity: 1
+     responses:
+       "200":
+         description: Historique d'achats mis à jour avec succès
+         content:
+           application/json:
+             schema:
+               type: object
+               properties:
+                 message:
+                   type: string
+                   example: "Historique d'achats mis à jour avec succès"
+       "500":
+         description: Erreur serveur ou utilisateur non trouvé
+         content:
+           application/json:
+             schema:
+               $ref: "#/components/schemas/Error"
+
+  /users/{id}/wishlist:
+   patch:
+     summary: Mettre à jour la liste de souhaits d'un utilisateur
+     description: Ajoute ou retire un produit de la liste de souhaits d'un utilisateur
+     tags:
+       - Users
+     parameters:
+       - name: id
+         in: path
+         required: true
+         description: ID de l'utilisateur
+         schema:
+           type: string
+           pattern: "^[0-9a-fA-F]{24}$"
+           example: "507f1f77bcf86cd799439011"
+     requestBody:
+       required: true
+       content:
+         application/json:
+           schema:
+             type: object
+             properties:
+               productId:
+                 type: string
+                 description: ID du produit à ajouter/retirer de la liste de souhaits
+                 example: "507f1f77bcf86cd799439011"
+             required:
+               - productId
+           example:
+             productId: "507f1f77bcf86cd799439011"
+     responses:
+       "200":
+         description: Liste de souhaits mise à jour avec succès
+         content:
+           application/json:
+             schema:
+               type: object
+               properties:
+                 message:
+                   type: string
+                   example: "Liste de souhaits mise à jour avec succès"
+       "500":
+         description: Erreur serveur, utilisateur ou produit non trouvé
+         content:
+           application/json:
+             schema:
+               $ref: "#/components/schemas/Error"
+
 components:
   schemas:
     User:
@@ -342,6 +494,21 @@ components:
           type: string
           description: Mot de passe de l'utilisateur
           example: "motdepasse123"
+        cart:
+          type: array
+          description: Panier de l'utilisateur
+          items:
+            $ref: "#/components/schemas/CartItem"
+        purchaseHistory:
+          type: array
+          description: Historique des achats de l'utilisateur
+          items:
+            $ref: "#/components/schemas/PurchaseHistoryItem"
+        wishlist:
+          type: array
+          description: Liste de souhaits de l'utilisateur
+          items:
+            $ref: "#/components/schemas/WishlistItem"
       required:
         - name
         - email
@@ -446,6 +613,48 @@ components:
         - name
         - price
         - inStock
+
+    CartItem:
+      type: object
+      properties:
+        productId:
+          type: string
+          description: ID du produit dans le panier
+          example: "507f1f77bcf86cd799439011"
+        quantity:
+          type: integer
+          description: Quantité du produit dans le panier
+          example: 2
+      required:
+        - productId
+        - quantity
+
+    PurchaseHistoryItem:
+      type: object
+      properties:
+        cart:
+          type: array
+          description: Panier au moment de l'achat
+          items:
+            $ref: "#/components/schemas/CartItem"
+        purchaseDate:
+          type: string
+          format: date-time
+          description: Date de l'achat
+          example: "2023-12-25T10:30:00Z"
+      required:
+        - cart
+        - purchaseDate
+
+    WishlistItem:
+      type: object
+      properties:
+        productId:
+          type: string
+          description: ID du produit dans la liste de souhaits
+          example: "507f1f77bcf86cd799439011"
+      required:
+        - productId
 
     Error:
       type: object
