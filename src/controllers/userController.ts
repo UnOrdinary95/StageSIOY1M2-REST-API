@@ -51,6 +51,19 @@ export const updateUserById = async (req: Request, res: Response) => {
     }
 };
 
+export const updateUserCartById = async (req: Request, res: Response) => {
+    const userId = req.params.id;
+    const cart = req.body.cart;
+    try {
+        const updatedUser = await updateOneUser(userId, { cart });
+        res.status(200).json(updatedUser);
+    }
+    catch (err) {
+        console.error("Erreur lors de la mise à jour du panier de l'utilisateur :", err);
+        res.status(500).json({ error: "Erreur lors de la mise à jour du panier de l'utilisateur" });
+    }
+};
+
 // DELETE
 export const deleteUserById = async (req: Request, res: Response) => {
     const userId = req.params.id;

@@ -1,13 +1,6 @@
 import { getDb } from "../config/db";
 import { ObjectId } from "mongodb";
-
-interface Product {
-    _id?: ObjectId;
-    name: string;
-    price: number;
-    inStock: boolean;
-    description?: string;
-}
+import { Product } from "../interfaces/Product";
 
 const COLLECTION_NAME = "Product";
 

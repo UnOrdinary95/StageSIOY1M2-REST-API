@@ -1,12 +1,8 @@
 import { getDb } from "../config/db";
 import { ObjectId } from "mongodb";
-
-interface User {
-    _id?: ObjectId;
-    name: string;
-    email: string;
-    password: string;
-}
+import { User } from "../interfaces/User";
+import { CartItem } from "../interfaces/CartItem";
+import { findOneProduct } from "./productModel";
 
 const COLLECTION_NAME = "User";
 
@@ -14,6 +10,11 @@ const COLLECTION_NAME = "User";
 export const insertOneUser = async (user: User) => {
     try {
         const db = getDb();
+
+        if (user.cart) {
+            await productExists(user.cart);
+        }
+
         const result = await db.collection(COLLECTION_NAME).insertOne(user);
         return { ...user, _id: result.insertedId };
     }
@@ -57,6 +58,11 @@ export const findOneUser = async (id: string) => {
 export const updateOneUser = async (id: string, userData: Partial<User>) => {
     try {
         const db = getDb();
+
+        if (userData.cart) {
+            await productExists(userData.cart);
+        }
+        
         const result = await db.collection(COLLECTION_NAME).updateOne(
             { _id: new ObjectId(id) },
             { $set: userData }
@@ -69,6 +75,29 @@ export const updateOneUser = async (id: string, userData: Partial<User>) => {
     catch (err) {
         console.error("Erreur : ", err);
         throw new Error("Erreur lors de la mise à jour de l'utilisateur");
+    }
+};
+
+export const patchCart = async (id: string, cart: CartItem[]) => {
+    try {
+        const db = getDb();
+
+        if (cart) {
+            await productExists(cart);
+        }
+
+        const result = await db.collection(COLLECTION_NAME).updateOne(
+            { _id: new ObjectId(id) },
+            { $set: { cart } }
+        );
+        if (result.matchedCount === 0) {
+            throw new Error("Utilisateur non trouvé");
+        }
+        return { message: "Panier mis à jour avec succès" };
+    }
+    catch (err) {
+        console.error("Erreur : ", err);
+        throw new Error("Erreur lors de la mise à jour du panier de l'utilisateur");
     }
 };
 
@@ -87,3 +116,10 @@ export const deleteOneUser = async (id: string) => {
         throw new Error("Erreur lors de la suppression de l'utilisateur");
     }
 };
+
+// UTILS
+async function productExists(cart: CartItem[]): Promise<void> {
+    for (const item of cart) {
+        await findOneProduct(item.productId);
+    }
+}
