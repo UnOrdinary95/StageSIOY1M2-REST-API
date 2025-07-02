@@ -61,9 +61,7 @@ export const updateOneUser = async (id: string, userData: Partial<User>) => {
             { _id: new ObjectId(id) },
             { $set: userData }
         );
-        if (
-            result.matchedCount === 0) {
-
+        if (result.matchedCount === 0) {
             throw new Error("Utilisateur non trouvé");
         }
         return { message: "Utilisateur mis à jour avec succès" };
@@ -79,9 +77,7 @@ export const deleteOneUser = async (id: string) => {
     try {
         const db = getDb();
         const result = await db.collection(COLLECTION_NAME).deleteOne({ _id: new ObjectId(id) });
-        if (
-            result.deletedCount === 0) {
-
+        if (result.deletedCount === 0) {
             throw new Error("Utilisateur non trouvé");
         }
         return { message: "Utilisateur supprimé avec succès" };
