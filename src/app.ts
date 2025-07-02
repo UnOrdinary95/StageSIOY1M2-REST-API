@@ -6,6 +6,7 @@ import YAML from "yamljs";
 import testRouter from "./routes/testRouter";
 import userRouter from "./routes/userRouter";
 import productRouter from "./routes/productRouter";
+import authRouter from "./routes/authRouter";
 
 const app = express();
 
@@ -18,5 +19,6 @@ app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use("/test", testRouter);
 app.use("/users", userRouter);
 app.use("/products", productRouter);
+app.use("/", authRouter);
 
 export default app;
