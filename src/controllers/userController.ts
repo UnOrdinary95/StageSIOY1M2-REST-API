@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
-import { deleteOneUser, findAllUsers, findOneUser, insertOneUser, updateOneUser } from "../models/userModel";
+import { deleteOneUser, findAllUsers, findOneUser, insertOneUser, patchCart, patchPurchaseHistory, updateOneUser } from "../models/userModel";
+import { CartItem } from "../interfaces/CartItem";
 
 // CREATE
 export const createUser = async (req: Request, res: Response) => {
@@ -53,14 +54,27 @@ export const updateUserById = async (req: Request, res: Response) => {
 
 export const updateUserCartById = async (req: Request, res: Response) => {
     const userId = req.params.id;
-    const cart = req.body.cart;
+    const cart: CartItem[] = req.body.cart;
     try {
-        const updatedUser = await updateOneUser(userId, { cart });
+        const updatedUser = await patchCart(userId, cart);
         res.status(200).json(updatedUser);
     }
     catch (err) {
         console.error("Erreur lors de la mise à jour du panier de l'utilisateur :", err);
         res.status(500).json({ error: "Erreur lors de la mise à jour du panier de l'utilisateur" });
+    }
+};
+
+export const updateUserPurchaseHistoryById = async (req: Request, res: Response) => {
+    const userId = req.params.id;
+    const cart: CartItem[] = req.body.cart;
+    try {
+        const updatedHistory = await patchPurchaseHistory(userId, cart);
+        res.status(200).json(updatedHistory);
+    }
+    catch (err) {
+        console.error("Erreur lors de la mise à jour de l'historique d'achats de l'utilisateur :", err);
+        res.status(500).json({ error: "Erreur lors de la mise à jour de l'historique d'achats de l'utilisateur" });
     }
 };
 

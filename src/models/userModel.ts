@@ -2,6 +2,7 @@ import { getDb } from "../config/db";
 import { ObjectId } from "mongodb";
 import { User } from "../interfaces/User";
 import { CartItem } from "../interfaces/CartItem";
+import { PurchaseHistoryItem } from "../interfaces/PurchaseHistoryItem";
 import { findOneProduct } from "./productModel";
 
 const COLLECTION_NAME = "User";
@@ -39,10 +40,10 @@ export const findAllUsers = async () => {
     }
 };
 
-export const findOneUser = async (id: string) => {
+export const findOneUser = async (id: string): Promise<User> => {
     try {
         const db = getDb();
-        const user = await db.collection(COLLECTION_NAME).findOne({ _id: new ObjectId(id) });
+        const user = await db.collection<User>(COLLECTION_NAME).findOne({ _id: new ObjectId(id) });
         if (!user) {
             throw new Error("Utilisateur non trouvé");
         }
@@ -62,7 +63,7 @@ export const updateOneUser = async (id: string, userData: Partial<User>) => {
         if (userData.cart) {
             await productExists(userData.cart);
         }
-        
+
         const result = await db.collection(COLLECTION_NAME).updateOne(
             { _id: new ObjectId(id) },
             { $set: userData }
@@ -78,12 +79,15 @@ export const updateOneUser = async (id: string, userData: Partial<User>) => {
     }
 };
 
-export const patchCart = async (id: string, cart: CartItem[]) => {
+export const patchCart = async (id: string, cart: CartItem[] | null) => {
     try {
         const db = getDb();
 
-        if (cart) {
+        if (cart !== null) {
             await productExists(cart);
+        }
+        else {
+            cart = [];
         }
 
         const result = await db.collection(COLLECTION_NAME).updateOne(
@@ -100,6 +104,37 @@ export const patchCart = async (id: string, cart: CartItem[]) => {
         throw new Error("Erreur lors de la mise à jour du panier de l'utilisateur");
     }
 };
+
+export const patchPurchaseHistory = async (id: string, cart: CartItem[]) => {
+    try {
+        const db = getDb();
+
+        const user = await findOneUser(id);
+
+        if (!user) {
+            throw new Error("Utilisateur non trouvé");
+        }
+
+        let updatedHistory: PurchaseHistoryItem[] = user.purchaseHistory ? [...user.purchaseHistory] : [];
+        updatedHistory.push({ cart, purchaseDate: new Date() });
+
+        const result = await db.collection(COLLECTION_NAME).updateOne(
+            { _id: new ObjectId(id) },
+            { $set: { purchaseHistory: updatedHistory } }
+        );
+
+        if (result.matchedCount === 0) throw new Error("Utilisateur non trouvé");
+
+        await patchCart(id, []); 
+
+        return { message: "Historique d'achats mis à jour avec succès" };
+    }
+    catch (err) {
+        console.error("Erreur : ", err);
+        throw new Error("Erreur lors de la mise à jour de l'historique d'achats de l'utilisateur");
+    }
+};
+
 
 // DELETE
 export const deleteOneUser = async (id: string) => {
@@ -123,3 +158,4 @@ async function productExists(cart: CartItem[]): Promise<void> {
         await findOneProduct(item.productId);
     }
 }
+
