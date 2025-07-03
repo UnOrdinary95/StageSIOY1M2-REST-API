@@ -10,469 +10,13 @@ servers:
   - url: http://localhost:3000
     description: Serveur local de développement
 
-paths:
-  /products:
-    post:
-      summary: Créer un nouveau produit
-      description: Crée un nouveau produit dans la base de données
-      tags:
-        - Products
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/ProductInput"
-            example:
-              name: "iPhone 15 Pro"
-              price: 1199.99
-              inStock: true
-              description: "Le dernier smartphone d'Apple avec puce A17 Pro"
-      responses:
-        "201":
-          description: Produit créé avec succès
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Product"
-        "500":
-          description: Erreur serveur
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-
-    get:
-      summary: Récupérer tous les produits
-      description: Récupère la liste de tous les produits (sans description)
-      tags:
-        - Products
-      responses:
-        "200":
-          description: Liste des produits récupérée avec succès
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/ProductSummary"
-        "500":
-          description: Erreur serveur
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-
-  /products/{id}:
-    get:
-      summary: Récupérer un produit par ID
-      description: Récupère les informations complètes d'un produit spécifique
-      tags:
-        - Products
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: ID du produit
-          schema:
-            type: string
-            pattern: "^[0-9a-fA-F]{24}$"
-            example: "507f1f77bcf86cd799439011"
-      responses:
-        "200":
-          description: Produit trouvé
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Product"
-        "500":
-          description: Erreur serveur ou produit non trouvé
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-
-    put:
-      summary: Mettre à jour un produit
-      description: Met à jour les informations d'un produit existant
-      tags:
-        - Products
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: ID du produit à modifier
-          schema:
-            type: string
-            pattern: "^[0-9a-fA-F]{24}$"
-            example: "507f1f77bcf86cd799439011"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/ProductInput"
-            example:
-              name: "iPhone 15 Pro Max"
-              price: 1299.99
-              inStock: false
-              description: "Version mise à jour avec écran plus grand"
-      responses:
-        "200":
-          description: Produit mis à jour avec succès
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: "Produit mis à jour avec succès"
-        "500":
-          description: Erreur serveur ou produit non trouvé
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-
-    delete:
-      summary: Supprimer un produit
-      description: Supprime un produit de la base de données
-      tags:
-        - Products
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: ID du produit à supprimer
-          schema:
-            type: string
-            pattern: "^[0-9a-fA-F]{24}$"
-            example: "507f1f77bcf86cd799439011"
-      responses:
-        "200":
-          description: Produit supprimé avec succès
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: "Produit supprimé avec succès"
-        "500":
-          description: Erreur serveur ou produit non trouvé
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-
-  /users:
-    post:
-      summary: Créer un nouvel utilisateur
-      description: Crée un nouvel utilisateur dans la base de données
-      tags:
-        - Users
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/UserInput"
-            example:
-              name: "John Doe"
-              email: "john.doe@example.com"
-              password: "motdepasse123"
-      responses:
-        "201":
-          description: Utilisateur créé avec succès
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/User"
-        "500":
-          description: Erreur serveur
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-
-    get:
-      summary: Récupérer tous les utilisateurs
-      description: Récupère la liste de tous les utilisateurs
-      tags:
-        - Users
-      responses:
-        "200":
-          description: Liste des utilisateurs récupérée avec succès
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/User"
-        "500":
-          description: Erreur serveur
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-
-  /users/{id}:
-    get:
-      summary: Récupérer un utilisateur par ID
-      description: Récupère les informations d'un utilisateur spécifique
-      tags:
-        - Users
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: ID de l'utilisateur
-          schema:
-            type: string
-            pattern: "^[0-9a-fA-F]{24}$"
-            example: "507f1f77bcf86cd799439011"
-      responses:
-        "200":
-          description: Utilisateur trouvé
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/User"
-        "500":
-          description: Erreur serveur ou utilisateur non trouvé
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-
-    put:
-      summary: Mettre à jour un utilisateur
-      description: Met à jour les informations d'un utilisateur existant
-      tags:
-        - Users
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: ID de l'utilisateur à modifier
-          schema:
-            type: string
-            pattern: "^[0-9a-fA-F]{24}$"
-            example: "507f1f77bcf86cd799439011"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/UserInput"
-            example:
-              name: "John Doe Updated"
-              email: "john.updated@example.com"
-      responses:
-        "200":
-          description: Utilisateur mis à jour avec succès
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: "Utilisateur mis à jour avec succès"
-        "500":
-          description: Erreur serveur ou utilisateur non trouvé
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-
-    delete:
-      summary: Supprimer un utilisateur
-      description: Supprime un utilisateur de la base de données
-      tags:
-        - Users
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: ID de l'utilisateur à supprimer
-          schema:
-            type: string
-            pattern: "^[0-9a-fA-F]{24}$"
-            example: "507f1f77bcf86cd799439011"
-      responses:
-        "200":
-          description: Utilisateur supprimé avec succès
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: "Utilisateur supprimé avec succès"
-        "500":
-          description: Erreur serveur ou utilisateur non trouvé
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-
-  /users/{id}/cart:
-   patch:
-     summary: Mettre à jour le panier d'un utilisateur
-     description: Met à jour le panier d'un utilisateur existant
-     tags:
-       - Users
-     parameters:
-       - name: id
-         in: path
-         required: true
-         description: ID de l'utilisateur
-         schema:
-           type: string
-           pattern: "^[0-9a-fA-F]{24}$"
-           example: "507f1f77bcf86cd799439011"
-     requestBody:
-       required: true
-       content:
-         application/json:
-           schema:
-             type: object
-             properties:
-               cart:
-                 type: array
-                 items:
-                   $ref: "#/components/schemas/CartItem"
-             required:
-               - cart
-           example:
-             cart:
-               - productId: "507f1f77bcf86cd799439011"
-                 quantity: 2
-               - productId: "507f1f77bcf86cd799439012"
-                 quantity: 1
-     responses:
-       "200":
-         description: Panier mis à jour avec succès
-         content:
-           application/json:
-             schema:
-               type: object
-               properties:
-                 message:
-                   type: string
-                   example: "Panier mis à jour avec succès"
-       "500":
-         description: Erreur serveur ou utilisateur non trouvé
-         content:
-           application/json:
-             schema:
-               $ref: "#/components/schemas/Error"
-
-  /users/{id}/history:
-   patch:
-     summary: Ajouter un achat à l'historique d'un utilisateur
-     description: Ajoute le panier actuel à l'historique d'achats et vide le panier
-     tags:
-       - Users
-     parameters:
-       - name: id
-         in: path
-         required: true
-         description: ID de l'utilisateur
-         schema:
-           type: string
-           pattern: "^[0-9a-fA-F]{24}$"
-           example: "507f1f77bcf86cd799439011"
-     requestBody:
-       required: true
-       content:
-         application/json:
-           schema:
-             type: object
-             properties:
-               cart:
-                 type: array
-                 items:
-                   $ref: "#/components/schemas/CartItem"
-             required:
-               - cart
-           example:
-             cart:
-               - productId: "507f1f77bcf86cd799439011"
-                 quantity: 2
-               - productId: "507f1f77bcf86cd799439012"
-                 quantity: 1
-     responses:
-       "200":
-         description: Historique d'achats mis à jour avec succès
-         content:
-           application/json:
-             schema:
-               type: object
-               properties:
-                 message:
-                   type: string
-                   example: "Historique d'achats mis à jour avec succès"
-       "500":
-         description: Erreur serveur ou utilisateur non trouvé
-         content:
-           application/json:
-             schema:
-               $ref: "#/components/schemas/Error"
-
-  /users/{id}/wishlist:
-   patch:
-     summary: Mettre à jour la liste de souhaits d'un utilisateur
-     description: Ajoute ou retire un produit de la liste de souhaits d'un utilisateur
-     tags:
-       - Users
-     parameters:
-       - name: id
-         in: path
-         required: true
-         description: ID de l'utilisateur
-         schema:
-           type: string
-           pattern: "^[0-9a-fA-F]{24}$"
-           example: "507f1f77bcf86cd799439011"
-     requestBody:
-       required: true
-       content:
-         application/json:
-           schema:
-             type: object
-             properties:
-               productId:
-                 type: string
-                 description: ID du produit à ajouter/retirer de la liste de souhaits
-                 example: "507f1f77bcf86cd799439011"
-             required:
-               - productId
-           example:
-             productId: "507f1f77bcf86cd799439011"
-     responses:
-       "200":
-         description: Liste de souhaits mise à jour avec succès
-         content:
-           application/json:
-             schema:
-               type: object
-               properties:
-                 message:
-                   type: string
-                   example: "Liste de souhaits mise à jour avec succès"
-       "500":
-         description: Erreur serveur, utilisateur ou produit non trouvé
-         content:
-           application/json:
-             schema:
-               $ref: "#/components/schemas/Error"
-
 components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Authentification JWT. Format: `Bearer <token>`
   schemas:
     User:
       type: object
@@ -666,8 +210,744 @@ components:
       required:
         - error
 
+paths:
+  /register:
+    post:
+      summary: Créer un nouveau compte utilisateur
+      description: Permet à un nouvel utilisateur de s'inscrire en créant un compte
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserInput"
+            example:
+              name: "John Doe"
+              email: "john.doe@example.com"
+              password: "motdepasse123"
+      responses:
+        "201":
+          description: Utilisateur créé avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Utilisateur créé avec succès"
+                  userId:
+                    type: string
+                    example: "507f1f77bcf86cd799439011"
+        "400":
+          description: Données manquantes ou email déjà utilisé
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Email déjà utilisé"
+        "500":
+          description: Erreur interne du serveur
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Erreur interne du serveur"
+
+  /login:
+    post:
+      summary: Se connecter avec un compte existant
+      description: Permet à un utilisateur de se connecter et recevoir un token JWT
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: Adresse email de l'utilisateur
+                  example: "john.doe@example.com"
+                password:
+                  type: string
+                  description: Mot de passe de l'utilisateur
+                  example: "motdepasse123"
+              required:
+                - email
+                - password
+            example:
+              email: "john.doe@example.com"
+              password: "motdepasse123"
+      responses:
+        "200":
+          description: Connexion réussie
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  token:
+                    type: string
+                    description: Token JWT pour l'authentification
+                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                  userId:
+                    type: string
+                    description: ID de l'utilisateur connecté
+                    example: "507f1f77bcf86cd799439011"
+                  email:
+                    type: string
+                    format: email
+                    description: Email de l'utilisateur connecté
+                    example: "john.doe@example.com"
+        "400":
+          description: Données manquantes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Email et mot de passe sont requis"
+        "401":
+          description: Identifiants invalides
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Identifiants invalides"
+
+  /products:
+    post:
+      summary: Créer un nouveau produit
+      description: Crée un nouveau produit dans la base de données
+      tags:
+        - Products
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductInput"
+            example:
+              name: "iPhone 15 Pro"
+              price: 1199.99
+              inStock: true
+              description: "Le dernier smartphone d'Apple avec puce A17 Pro"
+      responses:
+        "201":
+          description: Produit créé avec succès
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "401":
+          description: Token manquant, mal formé, invalide ou expiré
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Token manquant ou mal formé"
+        "500":
+          description: Erreur serveur
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    get:
+      summary: Récupérer tous les produits
+      description: Récupère la liste de tous les produits (sans description)
+      tags:
+        - Products
+      responses:
+        "200":
+          description: Liste des produits récupérée avec succès
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProductSummary"
+        "500":
+          description: Erreur serveur
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /products/{id}:
+    get:
+      summary: Récupérer un produit par ID
+      description: Récupère les informations complètes d'un produit spécifique
+      tags:
+        - Products
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID du produit
+          schema:
+            type: string
+            pattern: "^[0-9a-fA-F]{24}$"
+            example: "507f1f77bcf86cd799439011"
+      responses:
+        "200":
+          description: Produit trouvé
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "500":
+          description: Erreur serveur ou produit non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    put:
+      summary: Mettre à jour un produit
+      description: Met à jour les informations d'un produit existant
+      tags:
+        - Products
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID du produit à modifier
+          schema:
+            type: string
+            pattern: "^[0-9a-fA-F]{24}$"
+            example: "507f1f77bcf86cd799439011"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductInput"
+            example:
+              name: "iPhone 15 Pro Max"
+              price: 1299.99
+              inStock: false
+              description: "Version mise à jour avec écran plus grand"
+      responses:
+        "200":
+          description: Produit mis à jour avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Produit mis à jour avec succès"
+        "401":
+          description: Token manquant, mal formé, invalide ou expiré
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Token invalide ou expiré"
+        "500":
+          description: Erreur serveur ou produit non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    delete:
+      summary: Supprimer un produit
+      description: Supprime un produit de la base de données
+      tags:
+        - Products
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID du produit à supprimer
+          schema:
+            type: string
+            pattern: "^[0-9a-fA-F]{24}$"
+            example: "507f1f77bcf86cd799439011"
+      responses:
+        "200":
+          description: Produit supprimé avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Produit supprimé avec succès"
+        "401":
+          description: Token manquant, mal formé, invalide ou expiré
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Token invalide ou expiré"
+        "500":
+          description: Erreur serveur ou produit non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /users:
+    post:
+      summary: Créer un nouvel utilisateur
+      description: Crée un nouvel utilisateur dans la base de données
+      tags:
+        - Users
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserInput"
+            example:
+              name: "John Doe"
+              email: "john.doe@example.com"
+              password: "motdepasse123"
+      responses:
+        "201":
+          description: Utilisateur créé avec succès
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Token manquant, mal formé, invalide ou expiré
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Token manquant ou mal formé"
+        "500":
+          description: Erreur serveur
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    get:
+      summary: Récupérer tous les utilisateurs
+      description: Récupère la liste de tous les utilisateurs
+      tags:
+        - Users
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Liste des utilisateurs récupérée avec succès
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+        "401":
+          description: Token manquant, mal formé, invalide ou expiré
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Token invalide ou expiré"
+        "500":
+          description: Erreur serveur
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /users/{id}:
+    get:
+      summary: Récupérer un utilisateur par ID
+      description: Récupère les informations d'un utilisateur spécifique
+      tags:
+        - Users
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de l'utilisateur
+          schema:
+            type: string
+            pattern: "^[0-9a-fA-F]{24}$"
+            example: "507f1f77bcf86cd799439011"
+      responses:
+        "200":
+          description: Utilisateur trouvé
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Token manquant, mal formé, invalide ou expiré
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Token invalide ou expiré"
+        "500":
+          description: Erreur serveur ou utilisateur non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    put:
+      summary: Mettre à jour un utilisateur
+      description: Met à jour les informations d'un utilisateur existant
+      tags:
+        - Users
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de l'utilisateur à modifier
+          schema:
+            type: string
+            pattern: "^[0-9a-fA-F]{24}$"
+            example: "507f1f77bcf86cd799439011"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserInput"
+            example:
+              name: "John Doe Updated"
+              email: "john.updated@example.com"
+      responses:
+        "200":
+          description: Utilisateur mis à jour avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Utilisateur mis à jour avec succès"
+        "401":
+          description: Token manquant, mal formé, invalide ou expiré
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Token invalide ou expiré"
+        "500":
+          description: Erreur serveur ou utilisateur non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    delete:
+      summary: Supprimer un utilisateur
+      description: Supprime un utilisateur de la base de données
+      tags:
+        - Users
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de l'utilisateur à supprimer
+          schema:
+            type: string
+            pattern: "^[0-9a-fA-F]{24}$"
+            example: "507f1f77bcf86cd799439011"
+      responses:
+        "200":
+          description: Utilisateur supprimé avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Utilisateur supprimé avec succès"
+        "401":
+          description: Token manquant, mal formé, invalide ou expiré
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Token invalide ou expiré"
+        "500":
+          description: Erreur serveur ou utilisateur non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /users/{id}/cart:
+   patch:
+     summary: Mettre à jour le panier d'un utilisateur
+     description: Met à jour le panier d'un utilisateur existant
+     tags:
+       - Users
+     security:
+       - BearerAuth: []
+     parameters:
+       - name: id
+         in: path
+         required: true
+         description: ID de l'utilisateur
+         schema:
+           type: string
+           pattern: "^[0-9a-fA-F]{24}$"
+           example: "507f1f77bcf86cd799439011"
+     requestBody:
+       required: true
+       content:
+         application/json:
+           schema:
+             type: object
+             properties:
+               cart:
+                 type: array
+                 items:
+                   $ref: "#/components/schemas/CartItem"
+             required:
+               - cart
+           example:
+             cart:
+               - productId: "507f1f77bcf86cd799439011"
+                 quantity: 2
+               - productId: "507f1f77bcf86cd799439012"
+                 quantity: 1
+     responses:
+       "200":
+         description: Panier mis à jour avec succès
+         content:
+           application/json:
+             schema:
+               type: object
+               properties:
+                 message:
+                   type: string
+                   example: "Panier mis à jour avec succès"
+       "401":
+         description: Token manquant, mal formé, invalide ou expiré
+         content:
+           application/json:
+             schema:
+               type: object
+               properties:
+                 message:
+                   type: string
+                   example: "Token invalide ou expiré"
+       "500":
+         description: Erreur serveur ou utilisateur non trouvé
+         content:
+           application/json:
+             schema:
+               $ref: "#/components/schemas/Error"
+
+  /users/{id}/history:
+   patch:
+     summary: Ajouter un achat à l'historique d'un utilisateur
+     description: Ajoute le panier actuel à l'historique d'achats et vide le panier
+     tags:
+       - Users
+     security:
+       - BearerAuth: []
+     parameters:
+       - name: id
+         in: path
+         required: true
+         description: ID de l'utilisateur
+         schema:
+           type: string
+           pattern: "^[0-9a-fA-F]{24}$"
+           example: "507f1f77bcf86cd799439011"
+     requestBody:
+       required: true
+       content:
+         application/json:
+           schema:
+             type: object
+             properties:
+               cart:
+                 type: array
+                 items:
+                   $ref: "#/components/schemas/CartItem"
+             required:
+               - cart
+           example:
+             cart:
+               - productId: "507f1f77bcf86cd799439011"
+                 quantity: 2
+               - productId: "507f1f77bcf86cd799439012"
+                 quantity: 1
+     responses:
+       "200":
+         description: Historique d'achats mis à jour avec succès
+         content:
+           application/json:
+             schema:
+               type: object
+               properties:
+                 message:
+                   type: string
+                   example: "Historique d'achats mis à jour avec succès"
+       "401":
+         description: Token manquant, mal formé, invalide ou expiré
+         content:
+           application/json:
+             schema:
+               type: object
+               properties:
+                 message:
+                   type: string
+                   example: "Token invalide ou expiré"
+       "500":
+         description: Erreur serveur ou utilisateur non trouvé
+         content:
+           application/json:
+             schema:
+               $ref: "#/components/schemas/Error"
+
+  /users/{id}/wishlist:
+   patch:
+     summary: Mettre à jour la liste de souhaits d'un utilisateur
+     description: Ajoute ou retire un produit de la liste de souhaits d'un utilisateur
+     tags:
+       - Users
+     security:
+       - BearerAuth: []
+     parameters:
+       - name: id
+         in: path
+         required: true
+         description: ID de l'utilisateur
+         schema:
+           type: string
+           pattern: "^[0-9a-fA-F]{24}$"
+           example: "507f1f77bcf86cd799439011"
+     requestBody:
+       required: true
+       content:
+         application/json:
+           schema:
+             type: object
+             properties:
+               productId:
+                 type: string
+                 description: ID du produit à ajouter/retirer de la liste de souhaits
+                 example: "507f1f77bcf86cd799439011"
+             required:
+               - productId
+           example:
+             productId: "507f1f77bcf86cd799439011"
+     responses:
+       "200":
+         description: Liste de souhaits mise à jour avec succès
+         content:
+           application/json:
+             schema:
+               type: object
+               properties:
+                 message:
+                   type: string
+                   example: "Liste de souhaits mise à jour avec succès"
+       "401":
+         description: Token manquant, mal formé, invalide ou expiré
+         content:
+           application/json:
+             schema:
+               type: object
+               properties:
+                 message:
+                   type: string
+                   example: "Token invalide ou expiré"
+       "500":
+         description: Erreur serveur, utilisateur ou produit non trouvé
+         content:
+           application/json:
+             schema:
+               $ref: "#/components/schemas/Error"
 tags:
+  - name: Authentication
+    description: Opérations d'authentification (inscription et connexion)
   - name: Users
     description: Opérations liées à la gestion des utilisateurs
   - name: Products
     description: Opérations liées à la gestion des produits
+     
+    

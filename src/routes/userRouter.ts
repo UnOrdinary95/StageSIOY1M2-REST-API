@@ -1,22 +1,23 @@
 import { Router } from "express";
 import { createUser, deleteUserById, getUserById, getUsers, updatedWishlistById, updateUserById, updateUserCartById, updateUserPurchaseHistoryById } from "../controllers/userController";
+import { authMiddleware } from "../middlewares/authMiddleware";
 
 const userRouter = Router();
 
 // CREATE
-userRouter.post("/", createUser);
+userRouter.post("/", authMiddleware, createUser);
 
 // READ
-userRouter.get("/", getUsers);
-userRouter.get("/:id", getUserById);
+userRouter.get("/", authMiddleware, getUsers);
+userRouter.get("/:id", authMiddleware, getUserById);
 
 // UPDATE
-userRouter.put("/:id", updateUserById);
-userRouter.patch("/:id/cart", updateUserCartById);
-userRouter.patch("/:id/history", updateUserPurchaseHistoryById);
-userRouter.patch("/:id/wishlist", updatedWishlistById);
+userRouter.put("/:id", authMiddleware, updateUserById);
+userRouter.patch("/:id/cart", authMiddleware, updateUserCartById);
+userRouter.patch("/:id/history", authMiddleware, updateUserPurchaseHistoryById);
+userRouter.patch("/:id/wishlist", authMiddleware, updatedWishlistById);
 
 // DELETE
-userRouter.delete("/:id", deleteUserById);
+userRouter.delete("/:id", authMiddleware, deleteUserById);
 
 export default userRouter;
