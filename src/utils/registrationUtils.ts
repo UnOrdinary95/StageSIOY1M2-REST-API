@@ -21,6 +21,7 @@ const createUser = async (user: User) => {
         const newUser = {
             ...user,
             password: hashedPassword,
+            isAdmin: false
         };
 
         const result = await db.collection(COLLECTION_NAME).insertOne(newUser);

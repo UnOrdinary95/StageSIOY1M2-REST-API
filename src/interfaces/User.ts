@@ -8,6 +8,7 @@ export interface User {
     name: string;
     email: string;
     password: string;
+    isAdmin: boolean;
     cart?: CartItem[];
     purchaseHistory?: PurchaseHistoryItem[];
     wishlist?: WishlistItem[];
