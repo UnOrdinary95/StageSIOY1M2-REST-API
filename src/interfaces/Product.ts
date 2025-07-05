@@ -6,4 +6,5 @@ export interface Product {
     price: number;
     inStock: boolean;
     description?: string;
+    path: string;
 }
