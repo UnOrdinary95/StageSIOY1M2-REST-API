@@ -20,8 +20,8 @@ export const insertOneProduct = async (product: Product) => {
 export const findAllProducts = async () => {
     try {
         const db = getDb();
-        // Exclure le champ 'description' de la projection
-        const products = await db.collection(COLLECTION_NAME).find({}, { projection: { description: 0 } }).toArray();
+        
+        const products = await db.collection(COLLECTION_NAME).find().toArray();
         return products;
     } catch (err) {
         console.error("Erreur lors de la récupération des produits :", err);

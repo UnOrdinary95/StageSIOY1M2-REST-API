@@ -13,10 +13,6 @@ export const insertOneUser = async (user: User) => {
     try {
         const db = getDb();
 
-        if (user.cart) {
-            await productExists(user.cart);
-        }
-
         const result = await db.collection(COLLECTION_NAME).insertOne(user);
         return { ...user, _id: result.insertedId };
     }
@@ -80,24 +76,31 @@ export const updateOneUser = async (id: string, userData: Partial<User>) => {
     }
 };
 
-export const patchCart = async (id: string, cart: CartItem[] | null) => {
+export const patchCart = async (idUser: string, idProduct: string) => {
     try {
         const db = getDb();
+        const user = await findOneUser(idUser);
+        await findOneProduct(idProduct);
 
-        if (cart !== null) {
-            await productExists(cart);
-        }
-        else {
-            cart = [];
+        let updatedCart: CartItem[] = user.cart ? [...user.cart] : [];
+        let added = true;
+
+        if (user.cart?.some(item => item.productId === idProduct)) {
+            updatedCart = updatedCart.filter(item => item.productId !== idProduct);
+            added = false;
+        } else {
+            updatedCart.push({ productId: idProduct, quantity: 1 });
         }
 
         const result = await db.collection(COLLECTION_NAME).updateOne(
-            { _id: new ObjectId(id) },
-            { $set: { cart } }
+            { _id: new ObjectId(idUser) },
+            { $set: { cart: updatedCart } }
         );
+
         if (result.matchedCount === 0) {
             throw new Error("Utilisateur non trouvé");
         }
+
         return { message: "Panier mis à jour avec succès" };
     }
     catch (err) {
@@ -126,7 +129,7 @@ export const patchPurchaseHistory = async (id: string, cart: CartItem[]) => {
 
         if (result.matchedCount === 0) throw new Error("Utilisateur non trouvé");
 
-        await patchCart(id, []);
+        // MAJ du panier de l'utilisateur à un tableau vide
 
         return { message: "Historique d'achats mis à jour avec succès" };
     }
@@ -139,21 +142,12 @@ export const patchPurchaseHistory = async (id: string, cart: CartItem[]) => {
 export const patchWishlist = async (id: string, productIdBody: string) => {
     try {
         const db = getDb();
-
-        const product = await findOneProduct(productIdBody);
-
-        if (!product) {
-            throw new Error("Produit non trouvé");
-        }
-
         const user = await findOneUser(id);
-
-        if (!user) {
-            throw new Error("Utilisateur non trouvé");
-        }
+        await findOneProduct(productIdBody);
 
         let updatedWishlist: WishlistItem[] = user.wishlist ? [...user.wishlist] : [];
         let added = true;
+
         if (user.wishlist?.some(item => item.productId === productIdBody)) {
             updatedWishlist = updatedWishlist.filter(item => item.productId !== productIdBody);
             added = false;
@@ -173,6 +167,7 @@ export const patchWishlist = async (id: string, productIdBody: string) => {
         if (!added) {
             return { message: "Produit retiré de la liste de souhaits" };
         }
+
         return { message: "Liste de souhaits mise à jour avec succès" };
     } catch (err) {
         console.error("Erreur : ", err);

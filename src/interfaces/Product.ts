@@ -5,6 +5,6 @@ export interface Product {
     name: string;
     price: number;
     inStock: boolean;
-    description?: string;
+    description: string;
     path: string;
 }

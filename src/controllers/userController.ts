@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { deleteOneUser, findAllUsers, findOneUser, insertOneUser, patchCart, patchPurchaseHistory, patchWishlist, updateOneUser } from "../models/userModel";
 import { CartItem } from "../interfaces/CartItem";
+import { Product } from "../interfaces/Product";
 
 // CREATE
 export const createUser = async (req: Request, res: Response) => {
@@ -54,9 +55,9 @@ export const updateUserById = async (req: Request, res: Response) => {
 
 export const updateUserCartById = async (req: Request, res: Response) => {
     const userId = req.params.id;
-    const cart: CartItem[] = req.body.cart;
+    const productId: string = req.body.productId;
     try {
-        const updatedUser = await patchCart(userId, cart);
+        const updatedUser = await patchCart(userId, productId);
         res.status(200).json(updatedUser);
     }
     catch (err) {
