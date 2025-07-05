@@ -9,7 +9,7 @@ export interface User {
     email: string;
     password: string;
     isAdmin: boolean;
-    cart?: CartItem[];
-    purchaseHistory?: PurchaseHistoryItem[];
-    wishlist?: WishlistItem[];
+    cart: CartItem[];
+    purchaseHistory: PurchaseHistoryItem[];
+    wishlist: WishlistItem[];
 }
