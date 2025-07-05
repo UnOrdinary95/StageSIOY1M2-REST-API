@@ -3,6 +3,7 @@ import { getDb } from "../config/db";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import { TokenPayload } from "../interfaces/TokenPayload";
 
 dotenv.config();
 
@@ -23,7 +24,7 @@ export const connect = async (email: string, password: string) => {
         throw new Error("Identifiants invalides");
     }
 
-    const payload = {
+    const payload: TokenPayload = {
         userId: user._id?.toString(),
         email: user.email,
     };
