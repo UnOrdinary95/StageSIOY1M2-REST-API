@@ -2,10 +2,7 @@ import { Request, Response } from "express";
 import { getDb } from "../config/db.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import dotenv from "dotenv";
 import { TokenPayload } from "../interfaces/TokenPayload.js";
-
-dotenv.config();
 
 const COLLECTION_NAME = "User";
 const JWT_SECRET = process.env.JWT_SECRET || "";
