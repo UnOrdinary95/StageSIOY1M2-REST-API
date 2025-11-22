@@ -1,0 +1,36 @@
+services:
+    novelya-api:
+        build: .
+        ports:
+            - "3000:3000"
+        env_file: .env
+        depends_on:
+            mongodb:
+                condition: service_healthy
+        develop: # Use docker-compose-dev.yaml for development with nodemon and file syncing
+            watch:
+                - action: sync
+                  path: ./src
+                  target: /app/src
+                - action: rebuild
+                  path: ./package.json
+                  target: /app
+
+    mongodb:
+        image: mongo:8
+        container_name: novelya-mongodb
+        ports:
+            - "27017:27017"
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
+            MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+        volumes:
+            - mongodb_data:/data/db
+        healthcheck:
+            test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet # Command to test MongoDB health
+            interval: 10s # Time between each health check
+            timeout: 5s # Time to wait for a response
+            retries: 5 # Number of retries before considering the service unhealthy
+
+volumes:
+    mongodb_data:
