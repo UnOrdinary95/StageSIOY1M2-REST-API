@@ -1,6 +1,6 @@
-import { getDb } from "../config/db";
+import { getDb } from "../config/db.js";
 import { ObjectId } from "mongodb";
-import { Product } from "../interfaces/Product";
+import { Product } from "../interfaces/Product.js";
 
 const COLLECTION_NAME = "Product";
 
@@ -20,7 +20,7 @@ export const insertOneProduct = async (product: Product) => {
 export const findAllProducts = async () => {
     try {
         const db = getDb();
-        
+
         const products = await db.collection(COLLECTION_NAME).find().toArray();
         return products;
     } catch (err) {

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { getDb } from "../config/db";
+import { getDb } from "../config/db.js";
 import bcrypt from "bcrypt";
-import { User } from "../interfaces/User";
+import { User } from "../interfaces/User.js";
 
 const COLLECTION_NAME = "User";
 

@@ -1,7 +1,7 @@
 import { ObjectId } from "mongodb";
-import { CartItem } from "./CartItem";
-import { PurchaseHistoryItem } from "./PurchaseHistoryItem";
-import { WishlistItem } from "./WishlistItem";
+import { CartItem } from "./CartItem.js";
+import { PurchaseHistoryItem } from "./PurchaseHistoryItem.js";
+import { WishlistItem } from "./WishlistItem.js";
 
 export interface User {
     _id?: ObjectId;

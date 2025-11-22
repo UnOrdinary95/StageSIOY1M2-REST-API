@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
-import { getDb } from "../config/db";
+import { getDb } from "../config/db.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
-import { TokenPayload } from "../interfaces/TokenPayload";
+import { TokenPayload } from "../interfaces/TokenPayload.js";
 
 dotenv.config();
 

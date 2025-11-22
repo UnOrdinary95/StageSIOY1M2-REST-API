@@ -3,10 +3,10 @@ import cors from "cors";
 import swaggerUi from 'swagger-ui-express';
 import YAML from "yamljs";
 
-import testRouter from "./routes/testRouter";
-import userRouter from "./routes/userRouter";
-import productRouter from "./routes/productRouter";
-import authRouter from "./routes/authRouter";
+import testRouter from "./routes/testRouter.js";
+import userRouter from "./routes/userRouter.js";
+import productRouter from "./routes/productRouter.js";
+import authRouter from "./routes/authRouter.js";
 
 const app = express();
 

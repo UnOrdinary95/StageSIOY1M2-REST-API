@@ -16,5 +16,5 @@ build/
 .vscode/
 .idea/
 
-# Roo
-.rooignore
+# GitHub
+.github/

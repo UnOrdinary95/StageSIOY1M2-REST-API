@@ -1,10 +1,10 @@
-import { getDb } from "../config/db";
+import { getDb } from "../config/db.js";
 import { ObjectId } from "mongodb";
-import { User } from "../interfaces/User";
-import { CartItem } from "../interfaces/CartItem";
-import { PurchaseHistoryItem } from "../interfaces/PurchaseHistoryItem";
-import { WishlistItem } from "../interfaces/WishlistItem";
-import { findOneProduct } from "./productModel";
+import { User } from "../interfaces/User.js";
+import { CartItem } from "../interfaces/CartItem.js";
+import { PurchaseHistoryItem } from "../interfaces/PurchaseHistoryItem.js";
+import { WishlistItem } from "../interfaces/WishlistItem.js";
+import { findOneProduct } from "./productModel.js";
 
 const COLLECTION_NAME = "User";
 

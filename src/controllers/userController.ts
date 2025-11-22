@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { deleteOneUser, findAllUsers, findOneUser, insertOneUser, patchCart, patchPurchaseHistory, patchWishlist, updateOneUser } from "../models/userModel";
-import { CartItem } from "../interfaces/CartItem";
+import { deleteOneUser, findAllUsers, findOneUser, insertOneUser, patchCart, patchPurchaseHistory, patchWishlist, updateOneUser } from "../models/userModel.js";
+import { CartItem } from "../interfaces/CartItem.js";
 
 // CREATE
 export const createUser = async (req: Request, res: Response) => {

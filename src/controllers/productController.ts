@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { deleteOneProduct, findAllProducts, findOneProduct, insertOneProduct, updateOneProduct } from "../models/productModel";
+import { deleteOneProduct, findAllProducts, findOneProduct, insertOneProduct, updateOneProduct } from "../models/productModel.js";
 
 // CREATE
 export const createProduct = async (req: Request, res: Response) => {
