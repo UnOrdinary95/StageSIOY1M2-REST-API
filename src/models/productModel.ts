@@ -48,13 +48,21 @@ export const findOneProduct = async (productID: string): Promise<Product> => {
 export const updateOneProduct = async (productID: string, productData: Partial<Product>): Promise<Product> => {
     try {
         const db = getDb();
+        const { _id, ...safeData } = productData;
+
+        if (Object.keys(safeData).length === 0) {
+            throw new Error("Aucune donnée à mettre à jour");
+        }
+
         const result = await db.collection(COLLECTIONS.PRODUCT).updateOne(
             { _id: new ObjectId(productID) },
-            { $set: productData }
+            { $set: safeData }
         );
+
         if (result.matchedCount === 0) {
             throw new Error("Produit non trouvé");
         }
+
         return await findOneProduct(productID);
     } catch (err) {
         console.error("Erreur lors de la mise à jour du produit :", err);

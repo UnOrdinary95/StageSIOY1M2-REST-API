@@ -10,7 +10,7 @@ import { COLLECTIONS } from "../constants.js";
 // CREATE
 export const insertOneUser = async (user: User): Promise<User> => {
     try {
-        const db = getDb()
+        const db = getDb();
         const userWithObjectId = convertUserIdStrToObjectId(user);
         const result = await db.collection(COLLECTIONS.USER).insertOne(userWithObjectId);
         return { ...user, _id: result.insertedId.toString() };
@@ -54,13 +54,20 @@ export const updateOneUser = async (userID: string, userData: Partial<User>): Pr
     try {
         const db = getDb();
 
-        if (userData.cart) {
-            await productExists(userData.cart);
+        // Empêche la modification de l'_id
+        const { _id, ...safeData } = userData;
+
+        if (Object.keys(safeData).length === 0) {
+            throw new Error("Aucune donnée à mettre à jour");
+        }
+
+        if (safeData.cart) {
+            await productExists(safeData.cart);
         }
 
         const result = await db.collection(COLLECTIONS.USER).updateOne(
             { _id: new ObjectId(userID) },
-            { $set: userData }
+            { $set: safeData }
         );
         if (result.matchedCount === 0) {
             throw new Error("Utilisateur non trouvé");
@@ -80,11 +87,9 @@ export const patchCart = async (userID: string, productID: string): Promise<Cart
         await findOneProduct(productID);
 
         let updatedCart: CartItem[] = user.cart ? [...user.cart] : [];
-        let added = true;
 
         if (user.cart?.some(item => item.productId === productID)) {
             updatedCart = updatedCart.filter(item => item.productId !== productID);
-            added = false;
         } else {
             updatedCart.push({ productId: productID, quantity: 1 });
         }
@@ -106,15 +111,34 @@ export const patchCart = async (userID: string, productID: string): Promise<Cart
     }
 };
 
+export const clearCart = async (userID: string): Promise<void> => {
+    try {
+        const db = getDb();
+
+        const result = await db.collection(COLLECTIONS.USER).updateOne(
+            { _id: new ObjectId(userID) },
+            { $set: { cart: [] } }
+        );
+
+        if (result.matchedCount === 0) {
+            throw new Error("Utilisateur non trouvé");
+        }
+    }
+    catch (err) {
+        console.error("Erreur : ", err);
+        throw new Error("Erreur lors de la vidange du panier de l'utilisateur");
+    }
+};
+
 export const patchPurchaseHistory = async (userID: string, cart: CartItem[]): Promise<PurchaseHistoryItem[]> => {
     try {
         const db = getDb();
 
-        const user = await findOneUser(userID);
-
-        if (!user) {
-            throw new Error("Utilisateur non trouvé");
+        if (!cart || cart.length === 0) {
+            throw new Error("Le panier ne peut pas être vide");
         }
+
+        const user = await findOneUser(userID);
 
         let updatedHistory: PurchaseHistoryItem[] = user.purchaseHistory ? [...user.purchaseHistory] : [];
         updatedHistory.push({ cart, purchaseDate: new Date() });
@@ -124,9 +148,11 @@ export const patchPurchaseHistory = async (userID: string, cart: CartItem[]): Pr
             { $set: { purchaseHistory: updatedHistory } }
         );
 
-        if (result.matchedCount === 0) throw new Error("Utilisateur non trouvé");
+        if (result.matchedCount === 0) {
+            throw new Error("Utilisateur non trouvé");
+        }
 
-        // TODO: MAJ du panier de l'utilisateur à un tableau vide
+        await clearCart(userID);
 
         return updatedHistory;
     }
