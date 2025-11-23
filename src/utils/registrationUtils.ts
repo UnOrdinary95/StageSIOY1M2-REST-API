@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 import { User } from "../interfaces/User.js";
 import { logger } from "../utils/loggerUtils.js";
 import { COLLECTIONS } from "../constants.js";
+import { validateInput } from "../utils/userUtils.js";
 
 const createUser = async (user: Pick<User, "name" | "email" | "password">): Promise<{ success: boolean; message: string; userId?: string }> => {
     try {
@@ -53,6 +54,12 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
 
     if (!user.email || !user.password || !user.name) {
         res.status(400).json({ success: false, message: "Tous les champs sont requis" });
+        return;
+    }
+
+    const validation = validateInput(user.name, user.email, user.password);
+    if (!validation.valid) {
+        res.status(400).json({ success: false, message: validation.error });
         return;
     }
 

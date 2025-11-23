@@ -1,5 +1,6 @@
 import { ObjectId } from "mongodb";
 import { User, UserDB } from "../interfaces/User.js";
+import { PATTERNS } from "../constants.js";
 
 // Fonction utilitaire pour convertir les champs d'ID string en ObjectId
 export const convertUserIdStrToObjectId = (user: User): UserDB => {
@@ -15,4 +16,30 @@ export const convertObjectIdToUserIdStr = (user: UserDB): User => {
         ...user,
         _id: user._id?.toString()
     }
+};
+
+export const validateInput = (name: string, email: string, password: string): { valid: boolean; error?: string } => {
+    if (!PATTERNS.name.test(name)) {
+        return { valid: false, error: "Le nom doit contenir uniquement des lettres, tirets et underscores" };
+    }
+    if (!PATTERNS.email.test(email)) {
+        return { valid: false, error: "Email invalide" };
+    }
+    if (!PATTERNS.password.test(password)) {
+        return { valid: false, error: "Le mot de passe doit contenir au minimum 8 caractères avec au moins une majuscule et une minuscule" };
+    }
+    return { valid: true };
+};
+
+export const validateUserData = (userData: Partial<User>): { valid: boolean; error?: string } => {
+    if (userData.name && !PATTERNS.name.test(userData.name)) {
+        return { valid: false, error: "Le nom doit contenir uniquement des lettres, tirets et underscores" };
+    }
+    if (userData.email && !PATTERNS.email.test(userData.email)) {
+        return { valid: false, error: "Email invalide" };
+    }
+    if (userData.password && !PATTERNS.password.test(userData.password)) {
+        return { valid: false, error: "Le mot de passe doit contenir au minimum 8 caractères avec au moins une majuscule et une minuscule" };
+    }
+    return { valid: true };
 };

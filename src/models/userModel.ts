@@ -4,9 +4,10 @@ import { User, UserDB } from "../interfaces/User.js";
 import { CartItem } from "../interfaces/CartItem.js";
 import { PurchaseHistoryItem } from "../interfaces/PurchaseHistoryItem.js";
 import { findOneLightNovel, lightNovelExists } from "./lightNovelModel.js";
-import { convertObjectIdToUserIdStr, convertUserIdStrToObjectId } from "../utils/userUtils.js";
+import { convertObjectIdToUserIdStr, convertUserIdStrToObjectId, validateUserData } from "../utils/userUtils.js";
 import { logger } from "../utils/loggerUtils.js";
 import { COLLECTIONS } from "../constants.js";
+import bcrypt from "bcrypt";
 
 // CREATE
 export const insertOneUser = async (user: User): Promise<User> => {
@@ -60,6 +61,16 @@ export const updateOneUser = async (userID: string, userData: Partial<User>): Pr
 
         if (Object.keys(safeData).length === 0) {
             throw new Error("Aucune donnée à mettre à jour");
+        }
+
+        const validation = validateUserData(safeData);
+        if (!validation.valid) {
+            throw new Error(validation.error);
+        }
+
+        if (safeData.password) {
+            const saltRounds = 10;
+            safeData.password = await bcrypt.hash(safeData.password, saltRounds);
         }
 
         if (safeData.cart) {

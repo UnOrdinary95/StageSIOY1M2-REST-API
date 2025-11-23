@@ -3,6 +3,12 @@ export const COLLECTIONS = {
     LIGHT_NOVEL: "LightNovel",
 } as const;
 
+export const PATTERNS = {
+    name: /^[a-zA-Z\-_]+$/,
+    email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+    password: /^(?=.*[a-z])(?=.*[A-Z]).{8,}$/,
+} as const;
+
 export const isProd = process.env.NODE_ENV === "PROD";
 if (isProd) {
     console.log("Running in production mode");
