@@ -3,7 +3,7 @@ export const COLLECTIONS = {
     LIGHT_NOVEL: "LightNovel",
 } as const;
 
-const isProd = process.env.NODE_ENV == "PROD";
+export const isProd = process.env.NODE_ENV === "PROD";
 if (isProd) {
     console.log("Running in production mode");
 }

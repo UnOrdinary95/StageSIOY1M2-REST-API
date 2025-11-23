@@ -3,6 +3,7 @@ import { ObjectId } from "mongodb";
 import { LightNovel, LightNovelDB } from "../interfaces/LightNovel.js";
 import { CartItem } from "../interfaces/CartItem.js";
 import { convertObjectIdToLightNovelIdStr, convertLightNovelIdStrToObjectId } from "../utils/lightNovelUtils.js";
+import { logger } from "../utils/loggerUtils.js";
 import { COLLECTIONS } from "../constants.js";
 
 // CREATE
@@ -13,7 +14,7 @@ export const insertOneLightNovel = async (lightNovel: LightNovel): Promise<Light
         const result = await db.collection<LightNovelDB>(COLLECTIONS.LIGHT_NOVEL).insertOne(lightNovelWithObjectId);
         return { ...lightNovel, _id: result.insertedId.toString() };
     } catch (err) {
-        console.error("Erreur lors de la création du light novel :", err);
+        logger.error('insertOneLightNovel', err);
         throw new Error("Erreur lors de la création du light novel");
     }
 };
@@ -25,7 +26,7 @@ export const findAllLightNovels = async (): Promise<LightNovel[]> => {
         const lightNovels = await db.collection<LightNovelDB>(COLLECTIONS.LIGHT_NOVEL).find().toArray();
         return lightNovels.map(lightNovel => convertObjectIdToLightNovelIdStr(lightNovel));
     } catch (err) {
-        console.error("Erreur lors de la récupération des light novels :", err);
+        logger.error('findAllLightNovels', err);
         throw new Error("Erreur lors de la récupération des light novels");
     }
 };
@@ -39,7 +40,7 @@ export const findOneLightNovel = async (lightNovelID: string): Promise<LightNove
         }
         return convertObjectIdToLightNovelIdStr(lightNovel);
     } catch (err) {
-        console.error("Erreur lors de la récupération du light novel :", err);
+        logger.error('findOneLightNovel', err);
         throw new Error("Erreur lors de la récupération du light novel");
     }
 };
@@ -65,7 +66,7 @@ export const updateOneLightNovel = async (lightNovelID: string, lightNovelData: 
 
         return await findOneLightNovel(lightNovelID);
     } catch (err) {
-        console.error("Erreur lors de la mise à jour du light novel :", err);
+        logger.error('updateOneLightNovel', err);
         throw new Error("Erreur lors de la mise à jour du light novel");
     }
 };
@@ -79,7 +80,7 @@ export const deleteOneLightNovel = async (lightNovelID: string): Promise<void> =
             throw new Error("Light novel non trouvé");
         }
     } catch (err) {
-        console.error("Erreur lors de la suppression du light novel :", err);
+        logger.error('deleteOneLightNovel', err);
         throw new Error("Erreur lors de la suppression du light novel");
     }
 };

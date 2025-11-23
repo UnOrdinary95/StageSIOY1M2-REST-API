@@ -3,6 +3,7 @@ import { deleteOneLightNovel, findAllLightNovels, findOneLightNovel, insertOneLi
 import { getAuthUser } from "../utils/authUserUtils.js";
 import { LightNovel } from "../interfaces/LightNovel.js";
 import { checkAdminAccess } from "../utils/authUserUtils.js";
+import { logger } from "../utils/loggerUtils.js";
 
 // CREATE
 export const createLightNovel = async (req: Request, res: Response): Promise<void> => {
@@ -15,7 +16,7 @@ export const createLightNovel = async (req: Request, res: Response): Promise<voi
         const newLightNovel = await insertOneLightNovel(lightNovel);
         res.status(201).json(newLightNovel);
     } catch (err) {
-        console.error("Erreur lors de la création du light novel :", err);
+        logger.error('createLightNovel', err);
         res.status(500).json({ error: "Impossible de créer le light novel" });
     }
 };
@@ -26,7 +27,7 @@ export const getLightNovels = async (req: Request, res: Response): Promise<void>
         const lightNovels = await findAllLightNovels();
         res.status(200).json(lightNovels);
     } catch (err) {
-        console.error("Erreur lors de la récupération des light novels :", err);
+        logger.error('getLightNovels', err);
         res.status(500).json({ error: "Erreur lors de la récupération des light novels" });
     }
 };
@@ -37,7 +38,7 @@ export const getLightNovelById = async (req: Request, res: Response): Promise<vo
         const lightNovel = await findOneLightNovel(lightNovelId);
         res.status(200).json(lightNovel);
     } catch (err) {
-        console.error("Erreur lors de la récupération du light novel :", err);
+        logger.error('getLightNovelById', err);
         res.status(500).json({ error: "Erreur lors de la récupération du light novel" });
     }
 };
@@ -54,7 +55,7 @@ export const updateLightNovelById = async (req: Request, res: Response): Promise
         const updatedLightNovel = await updateOneLightNovel(lightNovelId, lightNovelData);
         res.status(200).json(updatedLightNovel);
     } catch (err) {
-        console.error("Erreur lors de la mise à jour du light novel :", err);
+        logger.error('updateLightNovelById', err);
         res.status(500).json({ error: "Erreur lors de la mise à jour du light novel" });
     }
 };
@@ -70,7 +71,7 @@ export const deleteLightNovelById = async (req: Request, res: Response): Promise
         const result = await deleteOneLightNovel(lightNovelId);
         res.status(200).json(result);
     } catch (err) {
-        console.error("Erreur lors de la suppression du light novel :", err);
+        logger.error('deleteLightNovelById', err);
         res.status(500).json({ error: "Erreur lors de la suppression du light novel" });
     }
 };

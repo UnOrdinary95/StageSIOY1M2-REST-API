@@ -3,6 +3,7 @@ import { deleteOneUser, findAllUsers, findOneUser, patchCart, patchPurchaseHisto
 import { CartItem } from "../interfaces/CartItem.js";
 import { User } from "../interfaces/User.js";
 import { getAuthUser, checkUserAccess, checkAdminAccess } from "../utils/authUserUtils.js";
+import { logger } from "../utils/loggerUtils.js";
 
 // READ
 export const getUsers = async (req: Request, res: Response): Promise<void> => {
@@ -15,7 +16,7 @@ export const getUsers = async (req: Request, res: Response): Promise<void> => {
         res.status(200).json(users);
     }
     catch (err) {
-        console.error("Erreur lors de la récupération des utilisateurs :", err);
+        logger.error('getUsers', err);
         res.status(500).json({ error: "Erreur lors de la récupération des utilisateurs" });
     }
 };
@@ -31,7 +32,7 @@ export const getUserById = async (req: Request, res: Response): Promise<void> =>
         res.status(200).json(user);
     }
     catch (err) {
-        console.error("Erreur lors de la récupération de l'utilisateur :", err);
+        logger.error('getUserById', err);
         res.status(500).json({ error: "Erreur lors de la récupération de l'utilisateur" });
     }
 };
@@ -49,7 +50,7 @@ export const updateUserById = async (req: Request, res: Response): Promise<void>
         res.status(200).json(updatedUser);
     }
     catch (err) {
-        console.error("Erreur lors de la mise à jour de l'utilisateur :", err);
+        logger.error('updateUserById', err);
         res.status(500).json({ error: "Erreur lors de la mise à jour de l'utilisateur" });
     }
 };
@@ -66,7 +67,7 @@ export const updateUserCartById = async (req: Request, res: Response): Promise<v
         res.status(200).json(updatedUser);
     }
     catch (err) {
-        console.error("Erreur lors de la mise à jour du panier de l'utilisateur :", err);
+        logger.error('updateUserCartById', err);
         res.status(500).json({ error: "Erreur lors de la mise à jour du panier de l'utilisateur" });
     }
 };
@@ -83,7 +84,7 @@ export const updateUserPurchaseHistoryById = async (req: Request, res: Response)
         res.status(200).json(updatedHistory);
     }
     catch (err) {
-        console.error("Erreur lors de la mise à jour de l'historique d'achats de l'utilisateur :", err);
+        logger.error('updateUserPurchaseHistoryById', err);
         res.status(500).json({ error: "Erreur lors de la mise à jour de l'historique d'achats de l'utilisateur" });
     }
 };
@@ -100,7 +101,7 @@ export const updatedWishlistById = async (req: Request, res: Response): Promise<
         res.status(200).json(updatedWishlist);
     }
     catch (err) {
-        console.error("Erreur lors de la mise à jour de la wishlist de l'utilisateur :", err);
+        logger.error('updatedWishlistById', err);
         res.status(500).json({ error: "Erreur lors de la mise à jour de la wishlist de l'utilisateur" });
     }
 };
@@ -117,7 +118,7 @@ export const deleteUserById = async (req: Request, res: Response): Promise<void>
         res.status(200).json(result);
     }
     catch (err) {
-        console.error("Erreur lors de la suppression de l'utilisateur :", err);
+        logger.error('deleteUserById', err);
         res.status(500).json({ error: "Erreur lors de la suppression de l'utilisateur" });
     }
 };

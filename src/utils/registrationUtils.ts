@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { getDb } from "../config/db.js";
 import bcrypt from "bcrypt";
 import { User } from "../interfaces/User.js";
+import { logger } from "../utils/loggerUtils.js";
 import { COLLECTIONS } from "../constants.js";
 
 const createUser = async (user: Pick<User, "name" | "email" | "password">): Promise<{ success: boolean; message: string; userId?: string }> => {
@@ -63,7 +64,7 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
             res.status(400).json(result);
         }
     } catch (error) {
-        console.error("Erreur lors de l'enregistrement de l'utilisateur :", error);
+        logger.error('registerUser', error);
         res.status(500).json({ success: false, message: "Erreur interne du serveur" });
     }
 };

@@ -1,10 +1,11 @@
 import { MongoClient, Db } from "mongodb";
 import dotenv from "dotenv";
 import { URI } from "../constants.js";
+import { logger } from "../utils/loggerUtils.js";
 
 dotenv.config();
 if (!URI) {
-    console.error("Erreur : URI MongoDB manquant !");
+    logger.error('DB Config', new Error("URI MongoDB manquant !"));
     process.exit(1);
 }
 
@@ -15,9 +16,9 @@ export const connectDb = async () => {
     try {
         await client.connect();
         db = client.db();
-        console.log("MongoDB connecté");
+        logger.info("MongoDB connecté");
     } catch (err) {
-        console.error("Connexion échouée:", err);
+        logger.error('DB Connection', err);
         process.exit(1);
     }
 };

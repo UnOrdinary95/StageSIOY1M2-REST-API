@@ -5,6 +5,7 @@ import { CartItem } from "../interfaces/CartItem.js";
 import { PurchaseHistoryItem } from "../interfaces/PurchaseHistoryItem.js";
 import { findOneLightNovel, lightNovelExists } from "./lightNovelModel.js";
 import { convertObjectIdToUserIdStr, convertUserIdStrToObjectId } from "../utils/userUtils.js";
+import { logger } from "../utils/loggerUtils.js";
 import { COLLECTIONS } from "../constants.js";
 
 // CREATE
@@ -16,7 +17,7 @@ export const insertOneUser = async (user: User): Promise<User> => {
         return { ...user, _id: result.insertedId.toString() };
     }
     catch (err) {
-        console.error("Erreur : ", err);
+        logger.error('insertOneUser', err);
         throw new Error("Erreur lors de la création de l'utilisateur");
     }
 };
@@ -29,7 +30,7 @@ export const findAllUsers = async (): Promise<User[]> => {
         return users.map(user => convertObjectIdToUserIdStr(user));
     }
     catch (err) {
-        console.error("Erreur : ", err);
+        logger.error('findAllUsers', err);
         throw new Error("Erreur lors de la récupération des utilisateurs");
     }
 };
@@ -44,7 +45,7 @@ export const findOneUser = async (userID: string): Promise<User> => {
         return convertObjectIdToUserIdStr(user);
     }
     catch (err) {
-        console.error("Erreur : ", err);
+        logger.error('findOneUser', err);
         throw new Error("Erreur lors de la récupération de l'utilisateur");
     }
 };
@@ -75,7 +76,7 @@ export const updateOneUser = async (userID: string, userData: Partial<User>): Pr
         return await findOneUser(userID);
     }
     catch (err) {
-        console.error("Erreur : ", err);
+        logger.error('updateOneUser', err);
         throw new Error("Erreur lors de la mise à jour de l'utilisateur");
     }
 };
@@ -106,7 +107,7 @@ export const patchCart = async (userID: string, lightNovelID: string): Promise<C
         return updatedCart;
     }
     catch (err) {
-        console.error("Erreur : ", err);
+        logger.error('patchCart', err);
         throw new Error("Erreur lors de la mise à jour du panier de l'utilisateur");
     }
 };
@@ -125,7 +126,7 @@ export const clearCart = async (userID: string): Promise<void> => {
         }
     }
     catch (err) {
-        console.error("Erreur : ", err);
+        logger.error('clearCart', err);
         throw new Error("Erreur lors de la vidange du panier de l'utilisateur");
     }
 };
@@ -157,7 +158,7 @@ export const patchPurchaseHistory = async (userID: string, cart: CartItem[]): Pr
         return updatedHistory;
     }
     catch (err) {
-        console.error("Erreur : ", err);
+        logger.error('patchPurchaseHistory', err);
         throw new Error("Erreur lors de la mise à jour de l'historique d'achats de l'utilisateur");
     }
 };
@@ -187,7 +188,7 @@ export const patchWishlist = async (userID: string, lightNovelID: string): Promi
 
         return updatedWishlist;
     } catch (err) {
-        console.error("Erreur : ", err);
+        logger.error('patchWishlist', err);
         throw new Error("Erreur lors de la mise à jour de la liste de souhaits de l'utilisateur");
     }
 };
@@ -203,7 +204,7 @@ export const deleteOneUser = async (userID: string): Promise<void> => {
         }
     }
     catch (err) {
-        console.error("Erreur : ", err);
+        logger.error('deleteOneUser', err);
         throw new Error("Erreur lors de la suppression de l'utilisateur");
     }
 };
