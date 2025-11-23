@@ -2,14 +2,13 @@ import { Request, Response } from "express";
 import { getDb } from "../config/db.js";
 import bcrypt from "bcrypt";
 import { User } from "../interfaces/User.js";
-
-const COLLECTION_NAME = "User";
+import { COLLECTIONS } from "../constants.js";
 
 const createUser = async (user: Pick<User, "name" | "email" | "password">): Promise<{ success: boolean; message: string; userId?: string }> => {
     try {
         const db = getDb();
 
-        const existingUser = await db.collection(COLLECTION_NAME).findOne({ email: user.email });
+        const existingUser = await db.collection(COLLECTIONS.USER).findOne({ email: user.email });
 
         if (existingUser) {
             throw new Error("Email déjà utilisé");
@@ -29,7 +28,7 @@ const createUser = async (user: Pick<User, "name" | "email" | "password">): Prom
             wishlist: [],
         };
 
-        const result = await db.collection(COLLECTION_NAME).insertOne(newUser);
+        const result = await db.collection(COLLECTIONS.USER).insertOne(newUser);
 
         if (!result.insertedId) {
             throw new Error("Erreur lors de la création de l'utilisateur");

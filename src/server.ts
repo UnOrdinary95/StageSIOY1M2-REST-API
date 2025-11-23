@@ -1,7 +1,6 @@
 import app from "./app.js";
 import { connectDb } from "./config/db.js";
-
-const PORT: string = process.env.PORT || "3000";
+import { PORT } from "./constants.js";
 
 connectDb()
     .then(() => app.listen(PORT, () => console.log(`Server is running on http://localhost:${PORT}`)))

@@ -1,8 +1,8 @@
 import { MongoClient, Db } from "mongodb";
 import dotenv from "dotenv";
+import { URI } from "../constants.js";
 
 dotenv.config();
-const URI: string = process.env.MONGO_URI || "";
 if (!URI) {
     console.error("Erreur : URI MongoDB manquant !");
     process.exit(1);

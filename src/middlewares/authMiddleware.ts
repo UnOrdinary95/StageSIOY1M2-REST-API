@@ -1,8 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { TokenPayload } from "../interfaces/TokenPayload.js";
-
-const JWT_SECRET = process.env.JWT_SECRET || "";
+import { JWT_SECRET } from "../constants.js";
 
 export const authMiddleware = (req: Request, res: Response, next: NextFunction): void => {
     const authHeader = req.headers.authorization;
