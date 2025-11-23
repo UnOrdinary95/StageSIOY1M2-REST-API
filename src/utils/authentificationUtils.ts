@@ -3,13 +3,14 @@ import { getDb } from "../config/db.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { TokenPayload } from "../interfaces/TokenPayload.js";
+import { UserDB } from "../interfaces/User.js";
 
 const COLLECTION_NAME = "User";
 const JWT_SECRET = process.env.JWT_SECRET || "";
 
 export const connect = async (email: string, password: string) => {
     const db = getDb();
-    const user = await db.collection(COLLECTION_NAME).findOne({ email });
+    const user = await db.collection<UserDB>(COLLECTION_NAME).findOne({ email });
 
     if (!user) {
         throw new Error("Identifiants invalides");
@@ -24,6 +25,7 @@ export const connect = async (email: string, password: string) => {
     const payload: TokenPayload = {
         userId: user._id?.toString(),
         email: user.email,
+        isAdmin: user.isAdmin
     };
 
     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "1h" });

@@ -1,20 +1,20 @@
 import { getDb } from "../config/db.js";
 import { ObjectId } from "mongodb";
-import { User } from "../interfaces/User.js";
+import { User, UserDB } from "../interfaces/User.js";
 import { CartItem } from "../interfaces/CartItem.js";
 import { PurchaseHistoryItem } from "../interfaces/PurchaseHistoryItem.js";
-import { WishlistItem } from "../interfaces/WishlistItem.js";
-import { findOneProduct } from "./productModel.js";
+import { findOneProduct, productExists } from "./productModel.js";
+import { convertObjectIdToUserIdStr, convertUserIdStrToObjectId } from "../utils/userUtils.js";
 
 const COLLECTION_NAME = "User";
 
 // CREATE
-export const insertOneUser = async (user: User) => {
+export const insertOneUser = async (user: User): Promise<User> => {
     try {
-        const db = getDb();
-
-        const result = await db.collection(COLLECTION_NAME).insertOne(user);
-        return { ...user, _id: result.insertedId };
+        const db = getDb()
+        const userWithObjectId = convertUserIdStrToObjectId(user);
+        const result = await db.collection(COLLECTION_NAME).insertOne(userWithObjectId);
+        return { ...user, _id: result.insertedId.toString() };
     }
     catch (err) {
         console.error("Erreur : ", err);
@@ -23,13 +23,11 @@ export const insertOneUser = async (user: User) => {
 };
 
 // READ
-export const findAllUsers = async () => {
+export const findAllUsers = async (): Promise<User[]> => {
     try {
         const db = getDb();
-        const users = await db.collection(COLLECTION_NAME).find().toArray();
-
-        return users;
-
+        const users = await db.collection<UserDB>(COLLECTION_NAME).find().toArray();
+        return users.map(user => convertObjectIdToUserIdStr(user));
     }
     catch (err) {
         console.error("Erreur : ", err);
@@ -40,11 +38,11 @@ export const findAllUsers = async () => {
 export const findOneUser = async (id: string): Promise<User> => {
     try {
         const db = getDb();
-        const user = await db.collection<User>(COLLECTION_NAME).findOne({ _id: new ObjectId(id) });
+        const user = await db.collection<UserDB>(COLLECTION_NAME).findOne({ _id: new ObjectId(id) });
         if (!user) {
             throw new Error("Utilisateur non trouvé");
         }
-        return user;
+        return convertObjectIdToUserIdStr(user);
     }
     catch (err) {
         console.error("Erreur : ", err);
@@ -53,7 +51,7 @@ export const findOneUser = async (id: string): Promise<User> => {
 };
 
 // UPDATE
-export const updateOneUser = async (id: string, userData: Partial<User>) => {
+export const updateOneUser = async (id: string, userData: Partial<User>): Promise<{ message: string }> => {
     try {
         const db = getDb();
 
@@ -76,7 +74,7 @@ export const updateOneUser = async (id: string, userData: Partial<User>) => {
     }
 };
 
-export const patchCart = async (idUser: string, idProduct: string) => {
+export const patchCart = async (idUser: string, idProduct: string): Promise<{ message: string }> => {
     try {
         const db = getDb();
         const user = await findOneUser(idUser);
@@ -109,7 +107,7 @@ export const patchCart = async (idUser: string, idProduct: string) => {
     }
 };
 
-export const patchPurchaseHistory = async (id: string, cart: CartItem[]) => {
+export const patchPurchaseHistory = async (id: string, cart: CartItem[]): Promise<{ message: string }> => {
     try {
         const db = getDb();
 
@@ -129,7 +127,7 @@ export const patchPurchaseHistory = async (id: string, cart: CartItem[]) => {
 
         if (result.matchedCount === 0) throw new Error("Utilisateur non trouvé");
 
-        // MAJ du panier de l'utilisateur à un tableau vide
+        // TODO: MAJ du panier de l'utilisateur à un tableau vide
 
         return { message: "Historique d'achats mis à jour avec succès" };
     }
@@ -139,20 +137,20 @@ export const patchPurchaseHistory = async (id: string, cart: CartItem[]) => {
     }
 };
 
-export const patchWishlist = async (id: string, productIdBody: string) => {
+export const patchWishlist = async (id: string, productIdBody: string): Promise<{ message: string }> => {
     try {
         const db = getDb();
         const user = await findOneUser(id);
         await findOneProduct(productIdBody);
 
-        let updatedWishlist: WishlistItem[] = user.wishlist ? [...user.wishlist] : [];
+        let updatedWishlist = user.wishlist ? [...user.wishlist] : [];
         let added = true;
 
-        if (user.wishlist?.some(item => item.productId === productIdBody)) {
-            updatedWishlist = updatedWishlist.filter(item => item.productId !== productIdBody);
+        if (user.wishlist?.some(productId => productId === productIdBody)) {
+            updatedWishlist = updatedWishlist.filter(productId => productId !== productIdBody);
             added = false;
         } else {
-            updatedWishlist.push({ productId: productIdBody });
+            updatedWishlist.push(productIdBody);
         }
 
         const result = await db.collection(COLLECTION_NAME).updateOne(
@@ -177,7 +175,7 @@ export const patchWishlist = async (id: string, productIdBody: string) => {
 
 
 // DELETE
-export const deleteOneUser = async (id: string) => {
+export const deleteOneUser = async (id: string): Promise<{ message: string }> => {
     try {
         const db = getDb();
         const result = await db.collection(COLLECTION_NAME).deleteOne({ _id: new ObjectId(id) });
@@ -189,12 +187,5 @@ export const deleteOneUser = async (id: string) => {
     catch (err) {
         console.error("Erreur : ", err);
         throw new Error("Erreur lors de la suppression de l'utilisateur");
-    }
-};
-
-// UTILS
-async function productExists(cart: CartItem[]): Promise<void> {
-    for (const item of cart) {
-        await findOneProduct(item.productId);
     }
 };

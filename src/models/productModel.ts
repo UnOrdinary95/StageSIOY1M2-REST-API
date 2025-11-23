@@ -1,14 +1,17 @@
 import { getDb } from "../config/db.js";
 import { ObjectId } from "mongodb";
-import { Product } from "../interfaces/Product.js";
+import { Product, ProductDB } from "../interfaces/Product.js";
+import { CartItem } from "../interfaces/CartItem.js";
+import { convertObjectIdToProductIdStr, convertProductIdStrToObjectId } from "../utils/productUtils.js";
 
 const COLLECTION_NAME = "Product";
 
 // CREATE
-export const insertOneProduct = async (product: Product) => {
+export const insertOneProduct = async (product: Product): Promise<Product> => {
     try {
         const db = getDb();
-        const result = await db.collection(COLLECTION_NAME).insertOne(product);
+        const productWithObjectId = convertProductIdStrToObjectId(product);
+        const result = await db.collection<ProductDB>(COLLECTION_NAME).insertOne(productWithObjectId);
         return { ...product, _id: result.insertedId.toString() };
     } catch (err) {
         console.error("Erreur lors de la création du produit :", err);
@@ -17,26 +20,25 @@ export const insertOneProduct = async (product: Product) => {
 };
 
 // READ
-export const findAllProducts = async () => {
+export const findAllProducts = async (): Promise<Product[]> => {
     try {
         const db = getDb();
-
-        const products = await db.collection(COLLECTION_NAME).find().toArray();
-        return products;
+        const products = await db.collection<ProductDB>(COLLECTION_NAME).find().toArray();
+        return products.map(product => convertObjectIdToProductIdStr(product));
     } catch (err) {
         console.error("Erreur lors de la récupération des produits :", err);
         throw new Error("Erreur lors de la récupération des produits");
     }
 };
 
-export const findOneProduct = async (id: string) => {
+export const findOneProduct = async (id: string): Promise<Product> => {
     try {
         const db = getDb();
-        const product = await db.collection(COLLECTION_NAME).findOne({ _id: new ObjectId(id) });
+        const product = await db.collection<ProductDB>(COLLECTION_NAME).findOne({ _id: new ObjectId(id) });
         if (!product) {
             throw new Error("Produit non trouvé");
         }
-        return product;
+        return convertObjectIdToProductIdStr(product);
     } catch (err) {
         console.error("Erreur lors de la récupération du produit :", err);
         throw new Error("Erreur lors de la récupération du produit");
@@ -44,7 +46,7 @@ export const findOneProduct = async (id: string) => {
 };
 
 // UPDATE
-export const updateOneProduct = async (id: string, productData: Partial<Product>) => {
+export const updateOneProduct = async (id: string, productData: Partial<Product>): Promise<{ message: string }> => {
     try {
         const db = getDb();
         const result = await db.collection(COLLECTION_NAME).updateOne(
@@ -62,7 +64,7 @@ export const updateOneProduct = async (id: string, productData: Partial<Product>
 };
 
 // DELETE
-export const deleteOneProduct = async (id: string) => {
+export const deleteOneProduct = async (id: string): Promise<{ message: string }> => {
     try {
         const db = getDb();
         const result = await db.collection(COLLECTION_NAME).deleteOne({ _id: new ObjectId(id) });
@@ -73,5 +75,12 @@ export const deleteOneProduct = async (id: string) => {
     } catch (err) {
         console.error("Erreur lors de la suppression du produit :", err);
         throw new Error("Erreur lors de la suppression du produit");
+    }
+};
+
+// UTILS
+export async function productExists(cart: CartItem[]): Promise<void> {
+    for (const item of cart) {
+        await findOneProduct(item.productId);
     }
 };

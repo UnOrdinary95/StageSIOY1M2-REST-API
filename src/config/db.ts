@@ -22,6 +22,7 @@ export const connectDb = async () => {
     }
 };
 
+// Singleton pour obtenir l'instance de la base de données
 export const getDb = (): Db => {
     if (!db) throw new Error("Base de données non connectée");
     return db;

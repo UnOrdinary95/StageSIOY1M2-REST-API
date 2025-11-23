@@ -1,21 +1,15 @@
 import { Request, Response } from "express";
-import { deleteOneUser, findAllUsers, findOneUser, insertOneUser, patchCart, patchPurchaseHistory, patchWishlist, updateOneUser } from "../models/userModel.js";
+import { deleteOneUser, findAllUsers, findOneUser, patchCart, patchPurchaseHistory, patchWishlist, updateOneUser } from "../models/userModel.js";
 import { CartItem } from "../interfaces/CartItem.js";
-
-// CREATE
-export const createUser = async (req: Request, res: Response) => {
-    try {
-        const user = req.body;
-        const newUser = await insertOneUser(user);
-        res.status(201).json(newUser);
-    } catch (err) {
-        console.error("Erreur lors de la création de l'utilisateur :", err);
-        res.status(500).json({ error: "Impossible de créer l'utilisateur" });
-    }
-};
+import { User } from "../interfaces/User.js";
+import { getAuthUser, checkUserAccess, checkAdminAccess } from "../utils/authUserUtils.js";
 
 // READ
-export const getUsers = async (req: Request, res: Response) => {
+export const getUsers = async (req: Request, res: Response): Promise<void> => {
+    const currentUser = getAuthUser(req);  // Récupère l'utilisateur authentifié
+
+    if (!checkAdminAccess(currentUser, res)) return;
+
     try {
         const users = await findAllUsers();
         res.status(200).json(users);
@@ -26,8 +20,12 @@ export const getUsers = async (req: Request, res: Response) => {
     }
 };
 
-export const getUserById = async (req: Request, res: Response) => {
+export const getUserById = async (req: Request, res: Response): Promise<void> => {
+    const currentUser = getAuthUser(req);
     const userId = req.params.id;
+
+    if (!checkUserAccess(currentUser, userId, res)) return;
+
     try {
         const user = await findOneUser(userId);
         res.status(200).json(user);
@@ -39,9 +37,13 @@ export const getUserById = async (req: Request, res: Response) => {
 };
 
 // UPDATE
-export const updateUserById = async (req: Request, res: Response) => {
+export const updateUserById = async (req: Request, res: Response): Promise<void> => {
+    const currentUser = getAuthUser(req);
     const userId = req.params.id;
-    const userData = req.body;
+
+    if (!checkUserAccess(currentUser, userId, res)) return;
+
+    const userData: Partial<User> = req.body;
     try {
         const updatedUser = await updateOneUser(userId, userData);
         res.status(200).json(updatedUser);
@@ -52,8 +54,12 @@ export const updateUserById = async (req: Request, res: Response) => {
     }
 };
 
-export const updateUserCartById = async (req: Request, res: Response) => {
+export const updateUserCartById = async (req: Request, res: Response): Promise<void> => {
+    const currentUser = getAuthUser(req);
     const userId = req.params.id;
+
+    if (!checkUserAccess(currentUser, userId, res)) return;
+
     const productId: string = req.body.productId;
     try {
         const updatedUser = await patchCart(userId, productId);
@@ -65,8 +71,12 @@ export const updateUserCartById = async (req: Request, res: Response) => {
     }
 };
 
-export const updateUserPurchaseHistoryById = async (req: Request, res: Response) => {
+export const updateUserPurchaseHistoryById = async (req: Request, res: Response): Promise<void> => {
+    const currentUser = getAuthUser(req);
     const userId = req.params.id;
+
+    if (!checkUserAccess(currentUser, userId, res)) return;
+
     const cart: CartItem[] = req.body.cart;
     try {
         const updatedHistory = await patchPurchaseHistory(userId, cart);
@@ -78,8 +88,12 @@ export const updateUserPurchaseHistoryById = async (req: Request, res: Response)
     }
 };
 
-export const updatedWishlistById = async (req: Request, res: Response) => {
+export const updatedWishlistById = async (req: Request, res: Response): Promise<void> => {
+    const currentUser = getAuthUser(req);
     const userId = req.params.id;
+
+    if (!checkUserAccess(currentUser, userId, res)) return;
+
     const productId = req.body.productId;
     try {
         const updatedWishlist = await patchWishlist(userId, productId);
@@ -92,8 +106,12 @@ export const updatedWishlistById = async (req: Request, res: Response) => {
 };
 
 // DELETE
-export const deleteUserById = async (req: Request, res: Response) => {
+export const deleteUserById = async (req: Request, res: Response): Promise<void> => {
+    const currentUser = getAuthUser(req);
     const userId = req.params.id;
+
+    if (!checkUserAccess(currentUser, userId, res)) return;
+
     try {
         const result = await deleteOneUser(userId);
         res.status(200).json(result);

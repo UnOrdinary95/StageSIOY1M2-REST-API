@@ -1,10 +1,17 @@
 import { Request, Response } from "express";
 import { deleteOneProduct, findAllProducts, findOneProduct, insertOneProduct, updateOneProduct } from "../models/productModel.js";
+import { getAuthUser } from "../utils/authUserUtils.js";
+import { Product } from "../interfaces/Product.js";
+import { checkAdminAccess } from "../utils/authUserUtils.js";
 
 // CREATE
-export const createProduct = async (req: Request, res: Response) => {
+export const createProduct = async (req: Request, res: Response): Promise<void> => {
     try {
-        const product = req.body;
+        const currentUser = getAuthUser(req);
+
+        if (!checkAdminAccess(currentUser, res)) return;
+
+        const product: Product = req.body;
         const newProduct = await insertOneProduct(product);
         res.status(201).json(newProduct);
     } catch (err) {
@@ -14,7 +21,7 @@ export const createProduct = async (req: Request, res: Response) => {
 };
 
 // READ
-export const getProducts = async (req: Request, res: Response) => {
+export const getProducts = async (req: Request, res: Response): Promise<void> => {
     try {
         const products = await findAllProducts();
         res.status(200).json(products);
@@ -24,7 +31,7 @@ export const getProducts = async (req: Request, res: Response) => {
     }
 };
 
-export const getProductById = async (req: Request, res: Response) => {
+export const getProductById = async (req: Request, res: Response): Promise<void> => {
     const productId = req.params.id;
     try {
         const product = await findOneProduct(productId);
@@ -36,9 +43,13 @@ export const getProductById = async (req: Request, res: Response) => {
 };
 
 // UPDATE
-export const updateProductById = async (req: Request, res: Response) => {
+export const updateProductById = async (req: Request, res: Response): Promise<void> => {
     const productId = req.params.id;
-    const productData = req.body;
+    const currentUser = getAuthUser(req);
+
+    if (!checkAdminAccess(currentUser, res)) return;
+
+    const productData: Partial<Product> = req.body;
     try {
         const updatedProduct = await updateOneProduct(productId, productData);
         res.status(200).json(updatedProduct);
@@ -49,8 +60,12 @@ export const updateProductById = async (req: Request, res: Response) => {
 };
 
 // DELETE
-export const deleteProductById = async (req: Request, res: Response) => {
+export const deleteProductById = async (req: Request, res: Response): Promise<void> => {
     const productId = req.params.id;
+    const currentUser = getAuthUser(req);
+
+    if (!checkAdminAccess(currentUser, res)) return;
+
     try {
         const result = await deleteOneProduct(productId);
         res.status(200).json(result);

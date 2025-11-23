@@ -5,7 +5,7 @@ import { User } from "../interfaces/User.js";
 
 const COLLECTION_NAME = "User";
 
-const createUser = async (user: User) => {
+const createUser = async (user: Pick<User, "name" | "email" | "password">): Promise<{ success: boolean; message: string; userId?: string }> => {
     try {
         const db = getDb();
 
@@ -18,8 +18,10 @@ const createUser = async (user: User) => {
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(user.password, saltRounds);
 
+        // MongoDB générera automatiquement l'_id
         const newUser = {
-            ...user,
+            name: user.name,
+            email: user.email,
             password: hashedPassword,
             isAdmin: false,
             cart: [],
@@ -36,7 +38,7 @@ const createUser = async (user: User) => {
         return {
             success: true,
             message: "Utilisateur créé avec succès",
-            userId: result.insertedId,
+            userId: result.insertedId.toString(),
         };
     } catch (error) {
         return {

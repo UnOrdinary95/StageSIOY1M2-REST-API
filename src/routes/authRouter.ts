@@ -2,7 +2,6 @@ import { Router } from "express";
 import { registerUser } from "../utils/registrationUtils.js";
 import { loginUser } from "../utils/authentificationUtils.js";
 
-
 const authRouter = Router();
 
 authRouter.post("/register", registerUser);
