@@ -11,11 +11,12 @@ import authRouter from "./routes/authRouter.js";
 const app = express();
 
 app.use(cors());
+// app.use(cors({origin: 'https://example.com'})); 
 app.use(express.json());
 
 const swaggerDocument = YAML.load("src/docs/swagger.yaml");
-app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use("/test", testRouter);
 app.use("/users", userRouter);
 app.use("/lightnovels", lightNovelRouter);
