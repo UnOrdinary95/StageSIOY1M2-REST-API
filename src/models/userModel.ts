@@ -3,7 +3,7 @@ import { ObjectId } from "mongodb";
 import { User, UserDB } from "../interfaces/User.js";
 import { CartItem } from "../interfaces/CartItem.js";
 import { PurchaseHistoryItem } from "../interfaces/PurchaseHistoryItem.js";
-import { findOneProduct, productExists } from "./productModel.js";
+import { findOneLightNovel, lightNovelExists } from "./lightNovelModel.js";
 import { convertObjectIdToUserIdStr, convertUserIdStrToObjectId } from "../utils/userUtils.js";
 import { COLLECTIONS } from "../constants.js";
 
@@ -62,7 +62,7 @@ export const updateOneUser = async (userID: string, userData: Partial<User>): Pr
         }
 
         if (safeData.cart) {
-            await productExists(safeData.cart);
+            await lightNovelExists(safeData.cart);
         }
 
         const result = await db.collection(COLLECTIONS.USER).updateOne(
@@ -80,18 +80,18 @@ export const updateOneUser = async (userID: string, userData: Partial<User>): Pr
     }
 };
 
-export const patchCart = async (userID: string, productID: string): Promise<CartItem[]> => {
+export const patchCart = async (userID: string, lightNovelID: string): Promise<CartItem[]> => {
     try {
         const db = getDb();
         const user = await findOneUser(userID);
-        await findOneProduct(productID);
+        await findOneLightNovel(lightNovelID);
 
         let updatedCart: CartItem[] = user.cart ? [...user.cart] : [];
 
-        if (user.cart?.some(item => item.productId === productID)) {
-            updatedCart = updatedCart.filter(item => item.productId !== productID);
+        if (user.cart?.some(item => item.lightNovelId === lightNovelID)) {
+            updatedCart = updatedCart.filter(item => item.lightNovelId !== lightNovelID);
         } else {
-            updatedCart.push({ productId: productID, quantity: 1 });
+            updatedCart.push({ lightNovelId: lightNovelID, quantity: 1 });
         }
 
         const result = await db.collection(COLLECTIONS.USER).updateOne(
@@ -162,18 +162,18 @@ export const patchPurchaseHistory = async (userID: string, cart: CartItem[]): Pr
     }
 };
 
-export const patchWishlist = async (userID: string, productID: string): Promise<string[]> => {
+export const patchWishlist = async (userID: string, lightNovelID: string): Promise<string[]> => {
     try {
         const db = getDb();
         const user = await findOneUser(userID);
-        await findOneProduct(productID);
+        await findOneLightNovel(lightNovelID);
 
         let updatedWishlist = user.wishlist ? [...user.wishlist] : [];
 
-        if (user.wishlist?.some(productId => productId === productID)) {
-            updatedWishlist = updatedWishlist.filter(productId => productId !== productID);
+        if (user.wishlist?.some(lightNovelId => lightNovelId === lightNovelID)) {
+            updatedWishlist = updatedWishlist.filter(lightNovelId => lightNovelId !== lightNovelID);
         } else {
-            updatedWishlist.push(productID);
+            updatedWishlist.push(lightNovelID);
         }
 
         const result = await db.collection(COLLECTIONS.USER).updateOne(

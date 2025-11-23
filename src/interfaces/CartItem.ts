@@ -1,4 +1,4 @@
 export interface CartItem {
-    productId: string;
+    lightNovelId: string;
     quantity: number;
 }

@@ -1,6 +1,6 @@
 export const COLLECTIONS = {
     USER: "User",
-    PRODUCT: "Product",
+    LIGHT_NOVEL: "LightNovel",
 } as const;
 
 const isProd = process.env.NODE_ENV == "PROD";

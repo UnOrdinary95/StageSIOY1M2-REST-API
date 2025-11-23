@@ -1,16 +1,19 @@
 import { ObjectId } from "mongodb";
 
 // Type pour l'API (avec string)
-export interface Product {
+export interface LightNovel {
     _id?: string;
-    name: string;
+    title: string;
+    author: string;
     price: number;
     inStock: boolean;
+    cover: string;
     description: string;
-    path: string;
+    genres: string[];
+    releaseDate: Date;
 }
 
 // Type interne pour MongoDB (avec ObjectId)
-export interface ProductDB extends Omit<Product, '_id'> {
+export interface LightNovelDB extends Omit<LightNovel, '_id'> {
     _id?: ObjectId;
 }

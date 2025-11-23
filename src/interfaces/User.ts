@@ -11,7 +11,7 @@ export interface User {
     isAdmin: boolean;
     cart: CartItem[];
     purchaseHistory: PurchaseHistoryItem[];
-    wishlist: string[]; // Liste des productId en tant que strings
+    wishlist: string[]; // Liste des lightNovelId en tant que strings
 }
 
 // Type interne pour MongoDB (avec ObjectId)

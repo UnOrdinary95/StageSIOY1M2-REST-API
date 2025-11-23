@@ -60,9 +60,9 @@ export const updateUserCartById = async (req: Request, res: Response): Promise<v
 
     if (!checkUserAccess(currentUser, userId, res)) return;
 
-    const productId: string = req.body.productId;
+    const lightNovelId: string = req.body.lightNovelId;
     try {
-        const updatedUser = await patchCart(userId, productId);
+        const updatedUser = await patchCart(userId, lightNovelId);
         res.status(200).json(updatedUser);
     }
     catch (err) {
@@ -94,9 +94,9 @@ export const updatedWishlistById = async (req: Request, res: Response): Promise<
 
     if (!checkUserAccess(currentUser, userId, res)) return;
 
-    const productId = req.body.productId;
+    const lightNovelId = req.body.lightNovelId;
     try {
-        const updatedWishlist = await patchWishlist(userId, productId);
+        const updatedWishlist = await patchWishlist(userId, lightNovelId);
         res.status(200).json(updatedWishlist);
     }
     catch (err) {

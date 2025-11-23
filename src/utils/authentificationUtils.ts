@@ -26,7 +26,7 @@ export const connect = async (email: string, password: string) => {
         isAdmin: user.isAdmin
     };
 
-    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "1h" });
+    const token = jwt.sign(payload, JWT_SECRET!, { expiresIn: "1h" });
 
     return { token, userId: user._id?.toString(), email: user.email };
 };
