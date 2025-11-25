@@ -4,14 +4,15 @@ services:
         ports:
             - "3000:3000"
         env_file: .env
+        environment:
+            - TZ=Europe/Paris # Set timezone to Paris for correct logging timestamps
         depends_on:
             mongodb:
                 condition: service_healthy
-        develop: # Use docker-compose-dev.yaml for development with nodemon and file syncing
+        volumes:
+            - ./:/app # Bind mount local directory to container for live file syncing
+        develop:
             watch:
-                - action: sync
-                  path: ./src
-                  target: /app/src
                 - action: rebuild
                   path: ./package.json
                   target: /app
