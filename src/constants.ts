@@ -4,7 +4,7 @@ export const COLLECTIONS = {
 } as const;
 
 export const PATTERNS = {
-    name: /^[a-zA-Z\-_]+$/,
+    name: /^[a-zA-Z\-_ ]+$/,
     email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
     password: /^(?=.*[a-z])(?=.*[A-Z]).{8,}$/,
 } as const;
