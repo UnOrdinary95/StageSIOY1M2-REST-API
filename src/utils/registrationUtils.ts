@@ -57,7 +57,7 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
         return;
     }
 
-    const validation = validateInput(user.name, user.email, user.password);
+    const validation = await validateInput(user.name, user.email, user.password);
     if (!validation.valid) {
         res.status(400).json({ success: false, message: validation.error });
         return;

@@ -51,6 +51,19 @@ export const findOneUser = async (userID: string): Promise<User> => {
     }
 };
 
+export const emailExists = async (email: string): Promise<boolean> => {
+    try {
+        const db = getDb();
+        const user = await db.collection<UserDB>(COLLECTIONS.USER).findOne({ email });
+        return Boolean(user);
+    }
+    catch (err) {
+        logger.error('emailExists', err);
+        throw new Error("Erreur lors de la vérification de l'email");
+    }
+}
+
+
 // UPDATE
 export const updateOneUser = async (userID: string, userData: Partial<User>): Promise<User> => {
     try {

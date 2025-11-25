@@ -1,6 +1,7 @@
 import { ObjectId } from "mongodb";
 import { User, UserDB } from "../interfaces/User.js";
 import { PATTERNS } from "../constants.js";
+import { emailExists } from "../models/userModel.js";
 
 // Fonction utilitaire pour convertir les champs d'ID string en ObjectId
 export const convertUserIdStrToObjectId = (user: User): UserDB => {
@@ -18,7 +19,7 @@ export const convertObjectIdToUserIdStr = (user: UserDB): User => {
     }
 };
 
-export const validateInput = (name: string, email: string, password: string): { valid: boolean; error?: string } => {
+export const validateInput = async (name: string, email: string, password: string): Promise<{ valid: boolean; error?: string; }> => {
     if (!PATTERNS.name.test(name)) {
         return { valid: false, error: "Le nom doit contenir uniquement des lettres, tirets et underscores" };
     }
@@ -27,6 +28,9 @@ export const validateInput = (name: string, email: string, password: string): { 
     }
     if (!PATTERNS.password.test(password)) {
         return { valid: false, error: "Le mot de passe doit contenir au minimum 8 caractères avec au moins une majuscule et une minuscule" };
+    }
+    if (await emailExists(email)) {
+        return { valid: false, error: "Email déjà utilisé" };
     }
     return { valid: true };
 };
