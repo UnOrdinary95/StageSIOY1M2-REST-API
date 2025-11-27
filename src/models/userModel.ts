@@ -105,18 +105,40 @@ export const updateOneUser = async (userID: string, userData: Partial<User>): Pr
     }
 };
 
-export const patchCart = async (userID: string, lightNovelID: string): Promise<CartItem[]> => {
+export const patchCart = async (userID: string, lightNovelID: string, quantity: number): Promise<CartItem[]> => {
     try {
+        if (quantity === 0) {
+            throw new Error("La quantité ne peut pas être 0");
+        }
+
         const db = getDb();
         const user = await findOneUser(userID);
         await findOneLightNovel(lightNovelID);
 
         let updatedCart: CartItem[] = user.cart ? [...user.cart] : [];
+        const existingItem = updatedCart.find(item => item.lightNovelId === lightNovelID);
+        if (quantity > 0) {
+            if (existingItem) {
+                existingItem.quantity += quantity;
+            }
+            else {
+                updatedCart.push({ lightNovelId: lightNovelID, quantity });
+            }
+        }
+        else {
+            if (!existingItem) {
+                throw new Error("L'article n'existe pas dans le panier");
+            }
 
-        if (user.cart?.some(item => item.lightNovelId === lightNovelID)) {
-            updatedCart = updatedCart.filter(item => item.lightNovelId !== lightNovelID);
-        } else {
-            updatedCart.push({ lightNovelId: lightNovelID, quantity: 1 });
+            if (Math.abs(quantity) < existingItem.quantity) {
+                existingItem.quantity += quantity;
+            }
+            else if (Math.abs(quantity) === existingItem.quantity) {
+                updatedCart = updatedCart.filter(item => item.lightNovelId !== lightNovelID);
+            }
+            else {
+                throw new Error("La quantité à retirer dépasse la quantité dans le panier");
+            }
         }
 
         const result = await db.collection(COLLECTIONS.USER).updateOne(
