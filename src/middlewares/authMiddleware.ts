@@ -16,7 +16,8 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction):
     const token = authHeader.split(" ")[1];
 
     try {
-        const decoded = jwt.verify(token, JWT_SECRET) as TokenPayload;
+        // as unknown as TokenPayload pour forcer le type TokenPayload
+        const decoded = jwt.verify(token, JWT_SECRET) as unknown as TokenPayload;
         (req as any).user = decoded;
         next();
     } catch (err) {
