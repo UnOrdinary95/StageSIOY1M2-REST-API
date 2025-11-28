@@ -402,7 +402,10 @@ paths:
   /lightnovels:
     post:
       summary: Créer un nouveau light novel
-      description: Crée un nouveau light novel dans la base de données
+      description: |
+        Crée un nouveau light novel dans la base de données.
+        
+        **⚠️ Requiert les privilèges administrateur.**
       tags:
         - Light Novels
       security:
@@ -508,7 +511,10 @@ paths:
 
     put:
       summary: Mettre à jour un light novel
-      description: Met à jour les informations d'un light novel existant
+      description: |
+        Met à jour les informations d'un light novel existant.
+        
+        **⚠️ Requiert les privilèges administrateur.**
       tags:
         - Light Novels
       security:
@@ -577,7 +583,10 @@ paths:
 
     delete:
       summary: Supprimer un light novel
-      description: Supprime un light novel de la base de données
+      description: |
+        Supprime un light novel de la base de données.
+        
+        **⚠️ Requiert les privilèges administrateur.**
       tags:
         - Light Novels
       security:
@@ -632,7 +641,10 @@ paths:
   /users:
     get:
       summary: Récupérer tous les utilisateurs
-      description: Récupère la liste de tous les utilisateurs
+      description: |
+        Récupère la liste de tous les utilisateurs.
+        
+        **⚠️ Requiert les privilèges administrateur.**
       tags:
         - Users
       security:
@@ -676,7 +688,10 @@ paths:
   /users/{id}:
     get:
       summary: Récupérer un utilisateur par ID
-      description: Récupère les informations d'un utilisateur spécifique
+      description: |
+        Récupère les informations d'un utilisateur spécifique.
+        
+        **🔐 L'utilisateur peut uniquement accéder à son propre profil, sauf s'il est administrateur.**
       tags:
         - Users
       security:
@@ -726,7 +741,10 @@ paths:
 
     put:
       summary: Mettre à jour un utilisateur
-      description: Met à jour les informations d'un utilisateur existant
+      description: |
+        Met à jour les informations d'un utilisateur existant.
+        
+        **🔐 L'utilisateur peut uniquement modifier son propre profil, sauf s'il est administrateur.**
       tags:
         - Users
       security:
@@ -789,7 +807,10 @@ paths:
 
     delete:
       summary: Supprimer un utilisateur
-      description: Supprime un utilisateur de la base de données
+      description: |
+        Supprime un utilisateur de la base de données.
+        
+        **🔐 L'utilisateur peut uniquement supprimer son propre compte, sauf s'il est administrateur.**
       tags:
         - Users
       security:
@@ -844,7 +865,14 @@ paths:
   /users/{id}/cart:
    patch:
      summary: Mettre à jour le panier d'un utilisateur
-     description: Met à jour le panier d'un utilisateur existant
+     description: |
+       Ajoute ou retire une quantité d'un light novel dans le panier d'un utilisateur.
+       
+       - Si `quantity` est positif, ajoute au panier.
+       - Si `quantity` est négatif, retire du panier.
+       - Si la quantité finale atteint 0 ou moins, l'article est supprimé du panier.
+       
+       **🔒 Accès restreint : seul l'utilisateur lui-même peut modifier son panier (l'administrateur ne peut pas).**
      tags:
        - Users
      security:
@@ -865,18 +893,20 @@ paths:
            schema:
              type: object
              properties:
-               cart:
-                 type: array
-                 items:
-                   $ref: "#/components/schemas/CartItem"
+               lightNovelId:
+                 type: string
+                 description: ID du light novel à ajouter/modifier dans le panier
+                 example: "507f1f77bcf86cd799439011"
+               quantity:
+                 type: integer
+                 description: Quantité à ajouter (positif) ou retirer (négatif)
+                 example: 2
              required:
-               - cart
+               - lightNovelId
+               - quantity
            example:
-             cart:
-               - lightNovelId: "507f1f77bcf86cd799439011"
-                 quantity: 2
-               - lightNovelId: "507f1f77bcf86cd799439012"
-                 quantity: 1
+             lightNovelId: "507f1f77bcf86cd799439011"
+             quantity: 2
      responses:
        "200":
          description: Panier mis à jour avec succès
@@ -917,8 +947,13 @@ paths:
 
   /users/{id}/history:
    patch:
-     summary: Ajouter un achat à l'historique d'un utilisateur
-     description: Ajoute le panier actuel à l'historique d'achats et vide le panier
+     summary: Valider l'achat et ajouter à l'historique
+     description: |
+       Transfère le panier actuel de l'utilisateur vers son historique d'achats, puis vide le panier.
+       
+       Le panier est récupéré automatiquement depuis le profil de l'utilisateur spécifié.
+       
+       **🔒 Accès restreint : seul l'utilisateur lui-même peut valider son achat (l'administrateur ne peut pas).**
      tags:
        - Users
      security:
@@ -927,30 +962,19 @@ paths:
        - name: id
          in: path
          required: true
-         description: ID de l'utilisateur
+         description: ID de l'utilisateur dont le panier sera validé
          schema:
            type: string
            pattern: "^[0-9a-fA-F]{24}$"
            example: "507f1f77bcf86cd799439011"
      requestBody:
-       required: true
+       required: false
+       description: Aucun body requis - le panier est récupéré automatiquement depuis le profil utilisateur
        content:
          application/json:
            schema:
              type: object
-             properties:
-               cart:
-                 type: array
-                 items:
-                   $ref: "#/components/schemas/CartItem"
-             required:
-               - cart
-           example:
-             cart:
-               - lightNovelId: "507f1f77bcf86cd799439011"
-                 quantity: 2
-               - lightNovelId: "507f1f77bcf86cd799439012"
-                 quantity: 1
+           example: {}
      responses:
        "200":
          description: Historique d'achats mis à jour avec succès
@@ -992,7 +1016,10 @@ paths:
   /users/{id}/wishlist:
    patch:
      summary: Mettre à jour la liste de souhaits d'un utilisateur
-     description: Ajoute ou retire un light novel de la liste de souhaits d'un utilisateur
+     description: |
+       Ajoute ou retire un light novel de la liste de souhaits d'un utilisateur (toggle).
+       
+       **🔒 Accès restreint : seul l'utilisateur lui-même peut modifier sa wishlist (l'administrateur ne peut pas).**
      tags:
        - Users
      security:
