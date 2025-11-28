@@ -1,9 +1,9 @@
 openapi: 3.0.0
 
 info:
-  title: Stage SIOY1M2 - REST API du site de vente en ligne
+  title: Novelya - API REST
   description: |
-    Une API REST sécurisée pour gérer les utilisateurs, les produits, les listes de souhaits et les historiques d'achats.
+    Une API REST sécurisée pour gérer les utilisateurs, les light novels, les listes de souhaits et les historiques d'achats.
   version: 1.0.0
 
 servers:
@@ -37,7 +37,7 @@ components:
         password:
           type: string
           description: Mot de passe de l'utilisateur
-          example: "motdepasse123"
+          example: "Motdepasse123"
         cart:
           type: array
           description: Panier de l'utilisateur
@@ -50,9 +50,10 @@ components:
             $ref: "#/components/schemas/PurchaseHistoryItem"
         wishlist:
           type: array
-          description: Liste de souhaits de l'utilisateur
+          description: Liste de souhaits de l'utilisateur (IDs des light novels)
           items:
-            $ref: "#/components/schemas/WishlistItem"
+            type: string
+            example: "507f1f77bcf86cd799439011"
       required:
         - name
         - email
@@ -73,104 +74,162 @@ components:
         password:
           type: string
           description: Mot de passe de l'utilisateur
-          example: "motdepasse123"
+          example: "Motdepasse123"
       required:
         - name
         - email
         - password
 
-    Product:
+    LightNovel:
       type: object
       properties:
         _id:
           type: string
-          description: ID unique du produit (MongoDB ObjectId)
+          description: ID unique du light novel (MongoDB ObjectId)
           example: "507f1f77bcf86cd799439011"
-        name:
+        title:
           type: string
-          description: Nom du produit
-          example: "iPhone 15 Pro"
+          description: Titre du light novel
+          example: "Sword Art Online - Volume 1"
+        author:
+          type: string
+          description: Auteur du light novel
+          example: "Reki Kawahara"
         price:
           type: number
           format: float
-          description: Prix du produit en euros
-          example: 1199.99
+          description: Prix du light novel en euros
+          example: 12.99
         inStock:
           type: boolean
-          description: Disponibilité du produit en stock
+          description: Disponibilité du light novel en stock
           example: true
+        cover:
+          type: string
+          description: URL de l'image de couverture
+          example: "https://example.com/covers/sao1.jpg"
         description:
           type: string
-          description: Description détaillée du produit
-          example: "Le dernier smartphone d'Apple avec puce A17 Pro"
+          description: Description détaillée du light novel
+          example: "Le premier volume de la série Sword Art Online"
+        genres:
+          type: array
+          description: Genres du light novel
+          items:
+            type: string
+          example: ["Fantasy", "Action", "Romance"]
+        releaseDate:
+          type: string
+          format: date-time
+          description: Date de sortie du light novel
+          example: "2009-04-10T00:00:00Z"
       required:
-        - name
+        - title
+        - author
         - price
         - inStock
+        - cover
+        - description
+        - genres
+        - releaseDate
 
-    ProductSummary:
+    LightNovelSummary:
       type: object
       properties:
         _id:
           type: string
-          description: ID unique du produit (MongoDB ObjectId)
+          description: ID unique du light novel (MongoDB ObjectId)
           example: "507f1f77bcf86cd799439011"
-        name:
+        title:
           type: string
-          description: Nom du produit
-          example: "iPhone 15 Pro"
+          description: Titre du light novel
+          example: "Sword Art Online - Volume 1"
+        author:
+          type: string
+          description: Auteur du light novel
+          example: "Reki Kawahara"
         price:
           type: number
           format: float
-          description: Prix du produit en euros
-          example: 1199.99
+          description: Prix du light novel en euros
+          example: 12.99
         inStock:
           type: boolean
-          description: Disponibilité du produit en stock
+          description: Disponibilité du light novel en stock
           example: true
+        cover:
+          type: string
+          description: URL de l'image de couverture
+          example: "https://example.com/covers/sao1.jpg"
       required:
-        - name
+        - title
+        - author
         - price
         - inStock
+        - cover
 
-    ProductInput:
+    LightNovelInput:
       type: object
       properties:
-        name:
+        title:
           type: string
-          description: Nom du produit
-          example: "iPhone 15 Pro"
+          description: Titre du light novel
+          example: "Sword Art Online - Volume 1"
+        author:
+          type: string
+          description: Auteur du light novel
+          example: "Reki Kawahara"
         price:
           type: number
           format: float
-          description: Prix du produit en euros
-          example: 1199.99
+          description: Prix du light novel en euros
+          example: 12.99
         inStock:
           type: boolean
-          description: Disponibilité du produit en stock
+          description: Disponibilité du light novel en stock
           example: true
+        cover:
+          type: string
+          description: URL de l'image de couverture
+          example: "https://example.com/covers/sao1.jpg"
         description:
           type: string
-          description: Description détaillée du produit
-          example: "Le dernier smartphone d'Apple avec puce A17 Pro"
+          description: Description détaillée du light novel
+          example: "Le premier volume de la série Sword Art Online"
+        genres:
+          type: array
+          description: Genres du light novel
+          items:
+            type: string
+          example: ["Fantasy", "Action", "Romance"]
+        releaseDate:
+          type: string
+          format: date-time
+          description: Date de sortie du light novel
+          example: "2009-04-10T00:00:00Z"
       required:
-        - name
+        - title
+        - author
         - price
         - inStock
+        - cover
+        - description
+        - genres
+        - releaseDate
 
     CartItem:
       type: object
       properties:
-        productId:
+        lightNovelId:
           type: string
-          description: ID du produit dans le panier
+          description: ID du light novel dans le panier
           example: "507f1f77bcf86cd799439011"
         quantity:
           type: integer
-          description: Quantité du produit dans le panier
+          description: Quantité du light novel dans le panier
           example: 2
       required:
-        - productId
+        - lightNovelId
         - quantity
 
     PurchaseHistoryItem:
@@ -189,16 +248,6 @@ components:
       required:
         - cart
         - purchaseDate
-
-    WishlistItem:
-      type: object
-      properties:
-        productId:
-          type: string
-          description: ID du produit dans la liste de souhaits
-          example: "507f1f77bcf86cd799439011"
-      required:
-        - productId
 
     Error:
       type: object
@@ -226,7 +275,7 @@ paths:
             example:
               name: "John Doe"
               email: "john.doe@example.com"
-              password: "motdepasse123"
+              password: "Motdepasse123"
       responses:
         "201":
           description: Utilisateur créé avec succès
@@ -292,13 +341,13 @@ paths:
                 password:
                   type: string
                   description: Mot de passe de l'utilisateur
-                  example: "motdepasse123"
+                  example: "Motdepasse123"
               required:
                 - email
                 - password
             example:
               email: "john.doe@example.com"
-              password: "motdepasse123"
+              password: "Motdepasse123"
       responses:
         "200":
           description: Connexion réussie
@@ -350,12 +399,15 @@ paths:
                     type: string
                     example: "Identifiants invalides"
 
-  /products:
+  /lightnovels:
     post:
-      summary: Créer un nouveau produit
-      description: Crée un nouveau produit dans la base de données
+      summary: Créer un nouveau light novel
+      description: |
+        Crée un nouveau light novel dans la base de données.
+        
+        **⚠️ Requiert les privilèges administrateur.**
       tags:
-        - Products
+        - Light Novels
       security:
         - BearerAuth: []
       requestBody:
@@ -363,19 +415,23 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ProductInput"
+              $ref: "#/components/schemas/LightNovelInput"
             example:
-              name: "iPhone 15 Pro"
-              price: 1199.99
+              title: "Sword Art Online - Volume 1"
+              author: "Reki Kawahara"
+              price: 12.99
               inStock: true
-              description: "Le dernier smartphone d'Apple avec puce A17 Pro"
+              cover: "https://example.com/covers/sao1.jpg"
+              description: "Le premier volume de la série Sword Art Online"
+              genres: ["Fantasy", "Action", "Romance"]
+              releaseDate: "2009-04-10T00:00:00Z"
       responses:
         "201":
-          description: Produit créé avec succès
+          description: Light novel créé avec succès
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Product"
+                $ref: "#/components/schemas/LightNovel"
         "401":
           description: Token manquant, mal formé, invalide ou expiré
           content:
@@ -386,6 +442,16 @@ paths:
                   message:
                     type: string
                     example: "Token manquant ou mal formé"
+        "403":
+          description: Accès refusé (privilèges insuffisants)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Accès refusé : privilèges administrateur requis"
         "500":
           description: Erreur serveur
           content:
@@ -394,19 +460,19 @@ paths:
                 $ref: "#/components/schemas/Error"
 
     get:
-      summary: Récupérer tous les produits
-      description: Récupère la liste de tous les produits (sans description)
+      summary: Récupérer tous les light novels
+      description: Récupère la liste de tous les light novels
       tags:
-        - Products
+        - Light Novels
       responses:
         "200":
-          description: Liste des produits récupérée avec succès
+          description: Liste des light novels récupérée avec succès
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/ProductSummary"
+                  $ref: "#/components/schemas/LightNovelSummary"
         "500":
           description: Erreur serveur
           content:
@@ -414,47 +480,50 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
-  /products/{id}:
+  /lightnovels/{id}:
     get:
-      summary: Récupérer un produit par ID
-      description: Récupère les informations complètes d'un produit spécifique
+      summary: Récupérer un light novel par ID
+      description: Récupère les informations complètes d'un light novel spécifique
       tags:
-        - Products
+        - Light Novels
       parameters:
         - name: id
           in: path
           required: true
-          description: ID du produit
+          description: ID du light novel
           schema:
             type: string
             pattern: "^[0-9a-fA-F]{24}$"
             example: "507f1f77bcf86cd799439011"
       responses:
         "200":
-          description: Produit trouvé
+          description: Light novel trouvé
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Product"
+                $ref: "#/components/schemas/LightNovel"
         "500":
-          description: Erreur serveur ou produit non trouvé
+          description: Erreur serveur ou light novel non trouvé
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
 
     put:
-      summary: Mettre à jour un produit
-      description: Met à jour les informations d'un produit existant
+      summary: Mettre à jour un light novel
+      description: |
+        Met à jour les informations d'un light novel existant.
+        
+        **⚠️ Requiert les privilèges administrateur.**
       tags:
-        - Products
+        - Light Novels
       security:
         - BearerAuth: []
       parameters:
         - name: id
           in: path
           required: true
-          description: ID du produit à modifier
+          description: ID du light novel à modifier
           schema:
             type: string
             pattern: "^[0-9a-fA-F]{24}$"
@@ -464,15 +533,19 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ProductInput"
+              $ref: "#/components/schemas/LightNovelInput"
             example:
-              name: "iPhone 15 Pro Max"
-              price: 1299.99
-              inStock: false
-              description: "Version mise à jour avec écran plus grand"
+              title: "Sword Art Online - Volume 2"
+              author: "Reki Kawahara"
+              price: 13.99
+              inStock: true
+              cover: "https://example.com/covers/sao2.jpg"
+              description: "Le deuxième volume de la série"
+              genres: ["Fantasy", "Action"]
+              releaseDate: "2009-08-10T00:00:00Z"
       responses:
         "200":
-          description: Produit mis à jour avec succès
+          description: Light novel mis à jour avec succès
           content:
             application/json:
               schema:
@@ -480,7 +553,7 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: "Produit mis à jour avec succès"
+                    example: "Light novel mis à jour avec succès"
         "401":
           description: Token manquant, mal formé, invalide ou expiré
           content:
@@ -491,32 +564,45 @@ paths:
                   message:
                     type: string
                     example: "Token invalide ou expiré"
+        "403":
+          description: Accès refusé (privilèges insuffisants)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Accès refusé : privilèges administrateur requis"
         "500":
-          description: Erreur serveur ou produit non trouvé
+          description: Erreur serveur ou light novel non trouvé
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
 
     delete:
-      summary: Supprimer un produit
-      description: Supprime un produit de la base de données
+      summary: Supprimer un light novel
+      description: |
+        Supprime un light novel de la base de données.
+        
+        **⚠️ Requiert les privilèges administrateur.**
       tags:
-        - Products
+        - Light Novels
       security:
         - BearerAuth: []
       parameters:
         - name: id
           in: path
           required: true
-          description: ID du produit à supprimer
+          description: ID du light novel à supprimer
           schema:
             type: string
             pattern: "^[0-9a-fA-F]{24}$"
             example: "507f1f77bcf86cd799439011"
       responses:
         "200":
-          description: Produit supprimé avec succès
+          description: Light novel supprimé avec succès
           content:
             application/json:
               schema:
@@ -524,7 +610,7 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: "Produit supprimé avec succès"
+                    example: "Light novel supprimé avec succès"
         "401":
           description: Token manquant, mal formé, invalide ou expiré
           content:
@@ -535,58 +621,30 @@ paths:
                   message:
                     type: string
                     example: "Token invalide ou expiré"
+        "403":
+          description: Accès refusé (privilèges insuffisants)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Accès refusé : privilèges administrateur requis"
         "500":
-          description: Erreur serveur ou produit non trouvé
+          description: Erreur serveur ou light novel non trouvé
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
 
   /users:
-    post:
-      summary: Créer un nouvel utilisateur
-      description: Crée un nouvel utilisateur dans la base de données
-      tags:
-        - Users
-      security:
-        - BearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/UserInput"
-            example:
-              name: "John Doe"
-              email: "john.doe@example.com"
-              password: "motdepasse123"
-      responses:
-        "201":
-          description: Utilisateur créé avec succès
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/User"
-        "401":
-          description: Token manquant, mal formé, invalide ou expiré
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: "Token manquant ou mal formé"
-        "500":
-          description: Erreur serveur
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-
     get:
       summary: Récupérer tous les utilisateurs
-      description: Récupère la liste de tous les utilisateurs
+      description: |
+        Récupère la liste de tous les utilisateurs.
+        
+        **⚠️ Requiert les privilèges administrateur.**
       tags:
         - Users
       security:
@@ -610,6 +668,16 @@ paths:
                   message:
                     type: string
                     example: "Token invalide ou expiré"
+        "403":
+          description: Accès refusé (privilèges insuffisants)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Accès refusé : privilèges administrateur requis"
         "500":
           description: Erreur serveur
           content:
@@ -620,7 +688,10 @@ paths:
   /users/{id}:
     get:
       summary: Récupérer un utilisateur par ID
-      description: Récupère les informations d'un utilisateur spécifique
+      description: |
+        Récupère les informations d'un utilisateur spécifique.
+        
+        **🔐 L'utilisateur peut uniquement accéder à son propre profil, sauf s'il est administrateur.**
       tags:
         - Users
       security:
@@ -651,6 +722,16 @@ paths:
                   message:
                     type: string
                     example: "Token invalide ou expiré"
+        "403":
+          description: Accès refusé (privilèges insuffisants)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Accès refusé : privilèges insuffisants"
         "500":
           description: Erreur serveur ou utilisateur non trouvé
           content:
@@ -660,7 +741,10 @@ paths:
 
     put:
       summary: Mettre à jour un utilisateur
-      description: Met à jour les informations d'un utilisateur existant
+      description: |
+        Met à jour les informations d'un utilisateur existant.
+        
+        **🔐 L'utilisateur peut uniquement modifier son propre profil, sauf s'il est administrateur.**
       tags:
         - Users
       security:
@@ -704,6 +788,16 @@ paths:
                   message:
                     type: string
                     example: "Token invalide ou expiré"
+        "403":
+          description: Accès refusé (privilèges insuffisants)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Accès refusé : privilèges insuffisants"
         "500":
           description: Erreur serveur ou utilisateur non trouvé
           content:
@@ -713,7 +807,10 @@ paths:
 
     delete:
       summary: Supprimer un utilisateur
-      description: Supprime un utilisateur de la base de données
+      description: |
+        Supprime un utilisateur de la base de données.
+        
+        **🔐 L'utilisateur peut uniquement supprimer son propre compte, sauf s'il est administrateur.**
       tags:
         - Users
       security:
@@ -748,6 +845,16 @@ paths:
                   message:
                     type: string
                     example: "Token invalide ou expiré"
+        "403":
+          description: Accès refusé (privilèges insuffisants)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Accès refusé : privilèges insuffisants"
         "500":
           description: Erreur serveur ou utilisateur non trouvé
           content:
@@ -758,7 +865,14 @@ paths:
   /users/{id}/cart:
    patch:
      summary: Mettre à jour le panier d'un utilisateur
-     description: Met à jour le panier d'un utilisateur existant
+     description: |
+       Ajoute ou retire une quantité d'un light novel dans le panier d'un utilisateur.
+       
+       - Si `quantity` est positif, ajoute au panier.
+       - Si `quantity` est négatif, retire du panier.
+       - Si la quantité finale atteint 0 ou moins, l'article est supprimé du panier.
+       
+       **🔒 Accès restreint : seul l'utilisateur lui-même peut modifier son panier (l'administrateur ne peut pas).**
      tags:
        - Users
      security:
@@ -779,18 +893,20 @@ paths:
            schema:
              type: object
              properties:
-               cart:
-                 type: array
-                 items:
-                   $ref: "#/components/schemas/CartItem"
+               lightNovelId:
+                 type: string
+                 description: ID du light novel à ajouter/modifier dans le panier
+                 example: "507f1f77bcf86cd799439011"
+               quantity:
+                 type: integer
+                 description: Quantité à ajouter (positif) ou retirer (négatif)
+                 example: 2
              required:
-               - cart
+               - lightNovelId
+               - quantity
            example:
-             cart:
-               - productId: "507f1f77bcf86cd799439011"
-                 quantity: 2
-               - productId: "507f1f77bcf86cd799439012"
-                 quantity: 1
+             lightNovelId: "507f1f77bcf86cd799439011"
+             quantity: 2
      responses:
        "200":
          description: Panier mis à jour avec succès
@@ -812,6 +928,16 @@ paths:
                  message:
                    type: string
                    example: "Token invalide ou expiré"
+       "403":
+         description: Accès refusé (privilèges insuffisants)
+         content:
+           application/json:
+             schema:
+               type: object
+               properties:
+                 error:
+                   type: string
+                   example: "Accès refusé : privilèges insuffisants"
        "500":
          description: Erreur serveur ou utilisateur non trouvé
          content:
@@ -821,8 +947,13 @@ paths:
 
   /users/{id}/history:
    patch:
-     summary: Ajouter un achat à l'historique d'un utilisateur
-     description: Ajoute le panier actuel à l'historique d'achats et vide le panier
+     summary: Valider l'achat et ajouter à l'historique
+     description: |
+       Transfère le panier actuel de l'utilisateur vers son historique d'achats, puis vide le panier.
+       
+       Le panier est récupéré automatiquement depuis le profil de l'utilisateur spécifié.
+       
+       **🔒 Accès restreint : seul l'utilisateur lui-même peut valider son achat (l'administrateur ne peut pas).**
      tags:
        - Users
      security:
@@ -831,30 +962,19 @@ paths:
        - name: id
          in: path
          required: true
-         description: ID de l'utilisateur
+         description: ID de l'utilisateur dont le panier sera validé
          schema:
            type: string
            pattern: "^[0-9a-fA-F]{24}$"
            example: "507f1f77bcf86cd799439011"
      requestBody:
-       required: true
+       required: false
+       description: Aucun body requis - le panier est récupéré automatiquement depuis le profil utilisateur
        content:
          application/json:
            schema:
              type: object
-             properties:
-               cart:
-                 type: array
-                 items:
-                   $ref: "#/components/schemas/CartItem"
-             required:
-               - cart
-           example:
-             cart:
-               - productId: "507f1f77bcf86cd799439011"
-                 quantity: 2
-               - productId: "507f1f77bcf86cd799439012"
-                 quantity: 1
+           example: {}
      responses:
        "200":
          description: Historique d'achats mis à jour avec succès
@@ -876,6 +996,16 @@ paths:
                  message:
                    type: string
                    example: "Token invalide ou expiré"
+       "403":
+         description: Accès refusé (privilèges insuffisants)
+         content:
+           application/json:
+             schema:
+               type: object
+               properties:
+                 error:
+                   type: string
+                   example: "Accès refusé : privilèges insuffisants"
        "500":
          description: Erreur serveur ou utilisateur non trouvé
          content:
@@ -886,7 +1016,10 @@ paths:
   /users/{id}/wishlist:
    patch:
      summary: Mettre à jour la liste de souhaits d'un utilisateur
-     description: Ajoute ou retire un produit de la liste de souhaits d'un utilisateur
+     description: |
+       Ajoute ou retire un light novel de la liste de souhaits d'un utilisateur (toggle).
+       
+       **🔒 Accès restreint : seul l'utilisateur lui-même peut modifier sa wishlist (l'administrateur ne peut pas).**
      tags:
        - Users
      security:
@@ -907,14 +1040,14 @@ paths:
            schema:
              type: object
              properties:
-               productId:
+               lightNovelId:
                  type: string
-                 description: ID du produit à ajouter/retirer de la liste de souhaits
+                 description: ID du light novel à ajouter/retirer de la liste de souhaits
                  example: "507f1f77bcf86cd799439011"
              required:
-               - productId
+               - lightNovelId
            example:
-             productId: "507f1f77bcf86cd799439011"
+             lightNovelId: "507f1f77bcf86cd799439011"
      responses:
        "200":
          description: Liste de souhaits mise à jour avec succès
@@ -936,8 +1069,18 @@ paths:
                  message:
                    type: string
                    example: "Token invalide ou expiré"
+       "403":
+         description: Accès refusé (privilèges insuffisants)
+         content:
+           application/json:
+             schema:
+               type: object
+               properties:
+                 error:
+                   type: string
+                   example: "Accès refusé : privilèges insuffisants"
        "500":
-         description: Erreur serveur, utilisateur ou produit non trouvé
+         description: Erreur serveur, utilisateur ou light novel non trouvé
          content:
            application/json:
              schema:
@@ -947,7 +1090,7 @@ tags:
     description: Opérations d'authentification (inscription et connexion)
   - name: Users
     description: Opérations liées à la gestion des utilisateurs
-  - name: Products
-    description: Opérations liées à la gestion des produits
+  - name: Light Novels
+    description: Opérations liées à la gestion des light novels
      
     

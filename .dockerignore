@@ -2,9 +2,6 @@
 node_modules/
 npm-debug.log*
 
-# Logs
-*.log
-
 # Build
 dist/
 build/
@@ -14,6 +11,7 @@ build/
 
 # Env
 .env
+.env-example.txt
 
 # IDE / OS
 .vscode/
@@ -21,3 +19,4 @@ build/
 
 # GitHub
 .github/
+

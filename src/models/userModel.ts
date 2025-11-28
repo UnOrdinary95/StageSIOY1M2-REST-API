@@ -1,99 +1,148 @@
-import { getDb } from "../config/db";
+import { getDb } from "../config/db.js";
 import { ObjectId } from "mongodb";
-import { User } from "../interfaces/User";
-import { CartItem } from "../interfaces/CartItem";
-import { PurchaseHistoryItem } from "../interfaces/PurchaseHistoryItem";
-import { WishlistItem } from "../interfaces/WishlistItem";
-import { findOneProduct } from "./productModel";
-
-const COLLECTION_NAME = "User";
+import { User, UserDB } from "../interfaces/User.js";
+import { CartItem } from "../interfaces/CartItem.js";
+import { PurchaseHistoryItem } from "../interfaces/PurchaseHistoryItem.js";
+import { findOneLightNovel, lightNovelExists } from "./lightNovelModel.js";
+import { convertObjectIdToUserIdStr, convertUserIdStrToObjectId, validateUserData } from "../utils/userUtils.js";
+import { logger } from "../utils/loggerUtils.js";
+import { COLLECTIONS } from "../constants.js";
+import bcrypt from "bcrypt";
 
 // CREATE
-export const insertOneUser = async (user: User) => {
+export const insertOneUser = async (user: User): Promise<User> => {
     try {
         const db = getDb();
-
-        const result = await db.collection(COLLECTION_NAME).insertOne(user);
-        return { ...user, _id: result.insertedId };
+        const userWithObjectId = convertUserIdStrToObjectId(user);
+        const result = await db.collection(COLLECTIONS.USER).insertOne(userWithObjectId);
+        return { ...user, _id: result.insertedId.toString() };
     }
     catch (err) {
-        console.error("Erreur : ", err);
+        logger.error('insertOneUser', err);
         throw new Error("Erreur lors de la création de l'utilisateur");
     }
 };
 
 // READ
-export const findAllUsers = async () => {
+export const findAllUsers = async (): Promise<User[]> => {
     try {
         const db = getDb();
-        const users = await db.collection(COLLECTION_NAME).find().toArray();
-
-        return users;
-
+        const users = await db.collection<UserDB>(COLLECTIONS.USER).find().toArray();
+        return users.map(user => convertObjectIdToUserIdStr(user));
     }
     catch (err) {
-        console.error("Erreur : ", err);
+        logger.error('findAllUsers', err);
         throw new Error("Erreur lors de la récupération des utilisateurs");
     }
 };
 
-export const findOneUser = async (id: string): Promise<User> => {
+export const findOneUser = async (userID: string): Promise<User> => {
     try {
         const db = getDb();
-        const user = await db.collection<User>(COLLECTION_NAME).findOne({ _id: new ObjectId(id) });
+        const user = await db.collection<UserDB>(COLLECTIONS.USER).findOne({ _id: new ObjectId(userID) });
         if (!user) {
             throw new Error("Utilisateur non trouvé");
         }
-        return user;
+        return convertObjectIdToUserIdStr(user);
     }
     catch (err) {
-        console.error("Erreur : ", err);
+        logger.error('findOneUser', err);
         throw new Error("Erreur lors de la récupération de l'utilisateur");
     }
 };
 
+export const emailExists = async (email: string): Promise<boolean> => {
+    try {
+        const db = getDb();
+        const user = await db.collection<UserDB>(COLLECTIONS.USER).findOne({ email });
+        return Boolean(user);
+    }
+    catch (err) {
+        logger.error('emailExists', err);
+        throw new Error("Erreur lors de la vérification de l'email");
+    }
+}
+
+
 // UPDATE
-export const updateOneUser = async (id: string, userData: Partial<User>) => {
+export const updateOneUser = async (userID: string, userData: Partial<User>): Promise<User> => {
     try {
         const db = getDb();
 
-        if (userData.cart) {
-            await productExists(userData.cart);
+        // Empêche la modification de l'_id
+        const { _id, ...safeData } = userData;
+
+        if (Object.keys(safeData).length === 0) {
+            throw new Error("Aucune donnée à mettre à jour");
         }
 
-        const result = await db.collection(COLLECTION_NAME).updateOne(
-            { _id: new ObjectId(id) },
-            { $set: userData }
+        const validation = validateUserData(safeData);
+        if (!validation.valid) {
+            throw new Error(validation.error);
+        }
+
+        if (safeData.password) {
+            const saltRounds = 10;
+            safeData.password = await bcrypt.hash(safeData.password, saltRounds);
+        }
+
+        if (safeData.cart) {
+            await lightNovelExists(safeData.cart);
+        }
+
+        const result = await db.collection(COLLECTIONS.USER).updateOne(
+            { _id: new ObjectId(userID) },
+            { $set: safeData }
         );
         if (result.matchedCount === 0) {
             throw new Error("Utilisateur non trouvé");
         }
-        return { message: "Utilisateur mis à jour avec succès" };
+        return await findOneUser(userID);
     }
     catch (err) {
-        console.error("Erreur : ", err);
+        logger.error('updateOneUser', err);
         throw new Error("Erreur lors de la mise à jour de l'utilisateur");
     }
 };
 
-export const patchCart = async (idUser: string, idProduct: string) => {
+export const patchCart = async (userID: string, lightNovelID: string, quantity: number): Promise<CartItem[]> => {
     try {
-        const db = getDb();
-        const user = await findOneUser(idUser);
-        await findOneProduct(idProduct);
-
-        let updatedCart: CartItem[] = user.cart ? [...user.cart] : [];
-        let added = true;
-
-        if (user.cart?.some(item => item.productId === idProduct)) {
-            updatedCart = updatedCart.filter(item => item.productId !== idProduct);
-            added = false;
-        } else {
-            updatedCart.push({ productId: idProduct, quantity: 1 });
+        if (quantity === 0) {
+            throw new Error("La quantité ne peut pas être 0");
         }
 
-        const result = await db.collection(COLLECTION_NAME).updateOne(
-            { _id: new ObjectId(idUser) },
+        const db = getDb();
+        const user = await findOneUser(userID);
+        await findOneLightNovel(lightNovelID);
+
+        let updatedCart: CartItem[] = user.cart ? [...user.cart] : [];
+        const existingItem = updatedCart.find(item => item.lightNovelId === lightNovelID);
+        if (quantity > 0) {
+            if (existingItem) {
+                existingItem.quantity += quantity;
+            }
+            else {
+                updatedCart.push({ lightNovelId: lightNovelID, quantity });
+            }
+        }
+        else {
+            if (!existingItem) {
+                throw new Error("L'article n'existe pas dans le panier");
+            }
+
+            if (Math.abs(quantity) < existingItem.quantity) {
+                existingItem.quantity += quantity;
+            }
+            else if (Math.abs(quantity) === existingItem.quantity) {
+                updatedCart = updatedCart.filter(item => item.lightNovelId !== lightNovelID);
+            }
+            else {
+                throw new Error("La quantité à retirer dépasse la quantité dans le panier");
+            }
+        }
+
+        const result = await db.collection(COLLECTIONS.USER).updateOne(
+            { _id: new ObjectId(userID) },
             { $set: { cart: updatedCart } }
         );
 
@@ -101,62 +150,81 @@ export const patchCart = async (idUser: string, idProduct: string) => {
             throw new Error("Utilisateur non trouvé");
         }
 
-        return { message: "Panier mis à jour avec succès" };
+        return updatedCart;
     }
     catch (err) {
-        console.error("Erreur : ", err);
+        logger.error('patchCart', err);
         throw new Error("Erreur lors de la mise à jour du panier de l'utilisateur");
     }
 };
 
-export const patchPurchaseHistory = async (id: string, cart: CartItem[]) => {
+export const clearCart = async (userID: string): Promise<void> => {
     try {
         const db = getDb();
 
-        const user = await findOneUser(id);
+        const result = await db.collection(COLLECTIONS.USER).updateOne(
+            { _id: new ObjectId(userID) },
+            { $set: { cart: [] } }
+        );
 
-        if (!user) {
+        if (result.matchedCount === 0) {
             throw new Error("Utilisateur non trouvé");
+        }
+    }
+    catch (err) {
+        logger.error('clearCart', err);
+        throw new Error("Erreur lors de la vidange du panier de l'utilisateur");
+    }
+};
+
+export const patchPurchaseHistory = async (userID: string): Promise<PurchaseHistoryItem[]> => {
+    try {
+        const db = getDb();
+        const user = await findOneUser(userID);
+        const cart = user.cart || [];
+
+        if (!cart || cart.length === 0) {
+            throw new Error("Le panier ne doit pas être vide");
         }
 
         let updatedHistory: PurchaseHistoryItem[] = user.purchaseHistory ? [...user.purchaseHistory] : [];
         updatedHistory.push({ cart, purchaseDate: new Date() });
 
-        const result = await db.collection(COLLECTION_NAME).updateOne(
-            { _id: new ObjectId(id) },
+        const result = await db.collection(COLLECTIONS.USER).updateOne(
+            { _id: new ObjectId(userID) },
             { $set: { purchaseHistory: updatedHistory } }
         );
 
-        if (result.matchedCount === 0) throw new Error("Utilisateur non trouvé");
+        if (result.matchedCount === 0) {
+            throw new Error("Utilisateur non trouvé");
+        }
 
-        // MAJ du panier de l'utilisateur à un tableau vide
+        await clearCart(userID);
 
-        return { message: "Historique d'achats mis à jour avec succès" };
+        return updatedHistory;
     }
     catch (err) {
-        console.error("Erreur : ", err);
+        logger.error('patchPurchaseHistory', err);
         throw new Error("Erreur lors de la mise à jour de l'historique d'achats de l'utilisateur");
     }
 };
 
-export const patchWishlist = async (id: string, productIdBody: string) => {
+export const patchWishlist = async (userID: string, lightNovelID: string): Promise<string[]> => {
     try {
         const db = getDb();
-        const user = await findOneUser(id);
-        await findOneProduct(productIdBody);
+        const user = await findOneUser(userID);
+        await findOneLightNovel(lightNovelID);
 
-        let updatedWishlist: WishlistItem[] = user.wishlist ? [...user.wishlist] : [];
-        let added = true;
+        let updatedWishlist = user.wishlist ? [...user.wishlist] : [];
 
-        if (user.wishlist?.some(item => item.productId === productIdBody)) {
-            updatedWishlist = updatedWishlist.filter(item => item.productId !== productIdBody);
-            added = false;
+        if (user.wishlist?.some(lightNovelId => lightNovelId === lightNovelID)) {
+            updatedWishlist = updatedWishlist.filter(lightNovelId => lightNovelId !== lightNovelID);
         } else {
-            updatedWishlist.push({ productId: productIdBody });
+            updatedWishlist.push(lightNovelID);
         }
 
-        const result = await db.collection(COLLECTION_NAME).updateOne(
-            { _id: new ObjectId(id) },
+        const result = await db.collection(COLLECTIONS.USER).updateOne(
+            { _id: new ObjectId(userID) },
             { $set: { wishlist: updatedWishlist } }
         );
 
@@ -164,37 +232,25 @@ export const patchWishlist = async (id: string, productIdBody: string) => {
             throw new Error("Utilisateur non trouvé");
         }
 
-        if (!added) {
-            return { message: "Produit retiré de la liste de souhaits" };
-        }
-
-        return { message: "Liste de souhaits mise à jour avec succès" };
+        return updatedWishlist;
     } catch (err) {
-        console.error("Erreur : ", err);
+        logger.error('patchWishlist', err);
         throw new Error("Erreur lors de la mise à jour de la liste de souhaits de l'utilisateur");
     }
 };
 
 
 // DELETE
-export const deleteOneUser = async (id: string) => {
+export const deleteOneUser = async (userID: string): Promise<void> => {
     try {
         const db = getDb();
-        const result = await db.collection(COLLECTION_NAME).deleteOne({ _id: new ObjectId(id) });
+        const result = await db.collection(COLLECTIONS.USER).deleteOne({ _id: new ObjectId(userID) });
         if (result.deletedCount === 0) {
             throw new Error("Utilisateur non trouvé");
         }
-        return { message: "Utilisateur supprimé avec succès" };
     }
     catch (err) {
-        console.error("Erreur : ", err);
+        logger.error('deleteOneUser', err);
         throw new Error("Erreur lors de la suppression de l'utilisateur");
-    }
-};
-
-// UTILS
-async function productExists(cart: CartItem[]): Promise<void> {
-    for (const item of cart) {
-        await findOneProduct(item.productId);
     }
 };

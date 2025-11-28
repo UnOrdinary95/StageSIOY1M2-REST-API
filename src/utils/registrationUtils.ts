@@ -1,15 +1,16 @@
 import { Request, Response } from "express";
-import { getDb } from "../config/db";
+import { getDb } from "../config/db.js";
 import bcrypt from "bcrypt";
-import { User } from "../interfaces/User";
+import { User } from "../interfaces/User.js";
+import { logger } from "../utils/loggerUtils.js";
+import { COLLECTIONS } from "../constants.js";
+import { validateInput } from "../utils/userUtils.js";
 
-const COLLECTION_NAME = "User";
-
-const createUser = async (user: User) => {
+const createUser = async (user: Pick<User, "name" | "email" | "password">): Promise<{ success: boolean; message: string; userId?: string }> => {
     try {
         const db = getDb();
 
-        const existingUser = await db.collection(COLLECTION_NAME).findOne({ email: user.email });
+        const existingUser = await db.collection(COLLECTIONS.USER).findOne({ email: user.email });
 
         if (existingUser) {
             throw new Error("Email déjà utilisé");
@@ -18,8 +19,10 @@ const createUser = async (user: User) => {
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(user.password, saltRounds);
 
+        // MongoDB générera automatiquement l'_id
         const newUser = {
-            ...user,
+            name: user.name,
+            email: user.email,
             password: hashedPassword,
             isAdmin: false,
             cart: [],
@@ -27,7 +30,7 @@ const createUser = async (user: User) => {
             wishlist: [],
         };
 
-        const result = await db.collection(COLLECTION_NAME).insertOne(newUser);
+        const result = await db.collection(COLLECTIONS.USER).insertOne(newUser);
 
         if (!result.insertedId) {
             throw new Error("Erreur lors de la création de l'utilisateur");
@@ -36,7 +39,7 @@ const createUser = async (user: User) => {
         return {
             success: true,
             message: "Utilisateur créé avec succès",
-            userId: result.insertedId,
+            userId: result.insertedId.toString(),
         };
     } catch (error) {
         return {
@@ -54,6 +57,12 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
         return;
     }
 
+    const validation = await validateInput(user.name, user.email, user.password);
+    if (!validation.valid) {
+        res.status(400).json({ success: false, message: validation.error });
+        return;
+    }
+
     try {
         const result = await createUser(user);
         if (result.success) {
@@ -62,7 +71,7 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
             res.status(400).json(result);
         }
     } catch (error) {
-        console.error("Erreur lors de l'enregistrement de l'utilisateur :", error);
+        logger.error('registerUser', error);
         res.status(500).json({ success: false, message: "Erreur interne du serveur" });
     }
 };
