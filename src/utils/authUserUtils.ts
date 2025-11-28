@@ -21,3 +21,12 @@ export const checkAdminAccess = (currentUser: TokenPayload, res: Response): bool
     }
     return true;
 };
+
+// Fonction utilitaire pour vérifier l'accès aux propres données de l'utilisateur
+export const checkSelfAccess = (currentUser: TokenPayload, userId: string, res: Response): boolean => {
+    if (currentUser.userId !== userId) {
+        res.status(403).json({ error: "Accès refusé : vous ne pouvez accéder qu'à vos propres données" });
+        return false;
+    }
+    return true;
+};

@@ -1,8 +1,7 @@
 import { Request, Response } from "express";
 import { deleteOneUser, findAllUsers, findOneUser, patchCart, patchPurchaseHistory, patchWishlist, updateOneUser } from "../models/userModel.js";
-import { CartItem } from "../interfaces/CartItem.js";
 import { User } from "../interfaces/User.js";
-import { getAuthUser, checkUserAccess, checkAdminAccess } from "../utils/authUserUtils.js";
+import { getAuthUser, checkUserAccess, checkAdminAccess, checkSelfAccess } from "../utils/authUserUtils.js";
 import { logger } from "../utils/loggerUtils.js";
 
 // READ
@@ -59,7 +58,7 @@ export const updateUserCartById = async (req: Request, res: Response): Promise<v
     const currentUser = getAuthUser(req);
     const userId = req.params.id;
 
-    if (!checkUserAccess(currentUser, userId, res)) return;
+    if (!checkSelfAccess(currentUser, userId, res)) return;
 
     const lightNovelId: string = req.body.lightNovelId;
     const quantity: number = req.body.quantity;
@@ -77,7 +76,7 @@ export const updateUserPurchaseHistoryById = async (req: Request, res: Response)
     const currentUser = getAuthUser(req);
     const userId = req.params.id;
 
-    if (!checkUserAccess(currentUser, userId, res)) return;
+    if (!checkSelfAccess(currentUser, userId, res)) return;
 
     try {
         const updatedHistory = await patchPurchaseHistory(userId);
@@ -93,7 +92,7 @@ export const updatedWishlistById = async (req: Request, res: Response): Promise<
     const currentUser = getAuthUser(req);
     const userId = req.params.id;
 
-    if (!checkUserAccess(currentUser, userId, res)) return;
+    if (!checkSelfAccess(currentUser, userId, res)) return;
 
     const lightNovelId = req.body.lightNovelId;
     try {
