@@ -177,15 +177,15 @@ export const clearCart = async (userID: string): Promise<void> => {
     }
 };
 
-export const patchPurchaseHistory = async (userID: string, cart: CartItem[]): Promise<PurchaseHistoryItem[]> => {
+export const patchPurchaseHistory = async (userID: string): Promise<PurchaseHistoryItem[]> => {
     try {
         const db = getDb();
+        const user = await findOneUser(userID);
+        const cart = user.cart || [];
 
         if (!cart || cart.length === 0) {
-            throw new Error("Le panier ne peut pas être vide");
+            throw new Error("Le panier ne doit pas être vide");
         }
-
-        const user = await findOneUser(userID);
 
         let updatedHistory: PurchaseHistoryItem[] = user.purchaseHistory ? [...user.purchaseHistory] : [];
         updatedHistory.push({ cart, purchaseDate: new Date() });
