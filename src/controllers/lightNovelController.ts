@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
-import { deleteOneLightNovel, findAllLightNovels, findOneLightNovel, insertOneLightNovel, updateOneLightNovel } from "../models/lightNovelModel.js";
+import { deleteOneLightNovel, findAllLightNovels, findAllLightNovelsByGenre, findOneLightNovel, insertOneLightNovel, updateOneLightNovel } from "../models/lightNovelModel.js";
 import { getAuthUser } from "../utils/authUserUtils.js";
 import { LightNovel } from "../interfaces/LightNovel.js";
 import { checkAdminAccess } from "../utils/authUserUtils.js";
 import { logger } from "../utils/loggerUtils.js";
+import { GENRES } from "../constants.js";
 
 // CREATE
 export const createLightNovel = async (req: Request, res: Response): Promise<void> => {
@@ -29,6 +30,22 @@ export const getLightNovels = async (req: Request, res: Response): Promise<void>
     } catch (err) {
         logger.error('getLightNovels', err);
         res.status(500).json({ error: "Erreur lors de la récupération des light novels" });
+    }
+};
+
+export const getLightNovelsByGenre = async (req: Request, res: Response): Promise<void> => {
+    const genre = req.params.genre.toLowerCase();
+    if (!GENRES.includes(genre)) {
+        res.status(400).json({ error: "Genre invalide" });
+        return;
+    }
+
+    try {
+        const lightNovels = await findAllLightNovelsByGenre(genre);
+        res.status(200).json(lightNovels);
+    } catch (err) {
+        logger.error('getLightNovelsByGenre', err);
+        res.status(500).json({ error: "Erreur lors de la récupération des light novels par genre" });
     }
 };
 

@@ -480,6 +480,36 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+  /lightnovels/genre/{genre}:
+    get:
+      summary: Récupérer les light novels par genre
+      description: Récupère la liste des light novels correspondant à un genre spécifique (ex: fantasy, romance, action...)
+      tags:
+        - Light Novels
+      parameters:
+        - name: genre
+          in: path
+          required: true
+          description: Nom du genre (en minuscules)
+          schema:
+            type: string
+            example: "fantasy"
+      responses:
+        "200":
+          description: Liste des light novels du genre demandé
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LightNovelSummary"
+        "500":
+          description: Erreur serveur
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
   /lightnovels/{id}:
     get:
       summary: Récupérer un light novel par ID

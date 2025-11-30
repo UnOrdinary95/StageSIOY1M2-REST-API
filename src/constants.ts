@@ -5,6 +5,20 @@ export const COLLECTIONS = {
     LIGHT_NOVEL: "LightNovel",
 } as const;
 
+export const GENRES = [
+    "action",
+    "adventure",
+    "comedy",
+    "drama",
+    "fantasy",
+    "horror",
+    "mystery",
+    "romance",
+    "sci-fi",
+    "slice of life",
+    "supernatural"
+];
+
 export const PATTERNS = {
     name: /^[a-zA-Z\-_ ]+$/,
     email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
