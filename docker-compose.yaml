@@ -1,6 +1,7 @@
 services:
-    novelya-api:
+    novelya-back:
         build: .
+        image: novelya-back:latest
         ports:
             - "3000:3000"
         env_file: .env

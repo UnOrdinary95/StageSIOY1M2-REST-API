@@ -5,7 +5,7 @@ help:
 	@echo "Commandes disponibles:"
 	@echo "make mongosh      - Connecter à l'instance MongoDB avec mongosh"
 	@echo "make docker-watch - Surveiller les changements et redémarrer le conteneur"
-	@echo "make docker-logs  - Afficher les logs du conteneur novelya-api"
+	@echo "make docker-logs  - Afficher les logs du conteneur novelya-back"
 	@echo "make docker-up    - Démarrer les conteneurs Docker en arrière-plan"
 	@echo "make docker-down  - Arrêter et supprimer les conteneurs Docker"
 	@echo.
@@ -17,7 +17,7 @@ docker-watch:
 	docker compose watch
 
 docker-logs:
-	docker compose logs novelya-api -f
+	docker compose logs novelya-back -f
 
 docker-up:
 	docker-compose up -d
