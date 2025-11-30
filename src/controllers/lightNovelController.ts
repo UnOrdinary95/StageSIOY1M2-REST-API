@@ -60,6 +60,22 @@ export const updateLightNovelById = async (req: Request, res: Response): Promise
     }
 };
 
+export const uploadCoverById = async (req: Request, res: Response): Promise<void> => {
+    if (!req.file) {
+        res.status(400).json({ error: "Aucun fichier téléchargé" });
+        return;
+    }
+
+    const coverUrl = `covers/${req.params.id}.jpg`; // Dans le path du service de fichiers statiques
+    try {
+        const updatedLightNovel = await updateOneLightNovel(req.params.id, { cover: coverUrl });
+        res.status(200).json(updatedLightNovel);
+    } catch (err) {
+        logger.error('uploadCoverById', err);
+        res.status(500).json({ error: "Erreur lors de l'upload de la couverture" });
+    }
+};
+
 // DELETE
 export const deleteLightNovelById = async (req: Request, res: Response): Promise<void> => {
     const lightNovelId = req.params.id;

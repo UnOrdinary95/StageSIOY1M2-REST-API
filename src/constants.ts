@@ -1,3 +1,5 @@
+import path from "path";
+
 export const COLLECTIONS = {
     USER: "User",
     LIGHT_NOVEL: "LightNovel",
@@ -21,3 +23,5 @@ export const PORT = isProd ? process.env.PORT : 3000;
 // as string pour indiquer à TypeScript que ce sera toujours un string en production
 export const JWT_SECRET = isProd ? process.env.JWT_SECRET as string : "739t8nBsBaWslYtENddDNKMJV/HF/Tk4ZqhPpD5FwCQ=";
 export const URI = isProd ? process.env.MONGODB_URI : "mongodb://admin:password@mongodb:27017/novelya?authSource=admin";
+
+export const COVERS_DIR = path.join(process.cwd(), 'public', 'covers');

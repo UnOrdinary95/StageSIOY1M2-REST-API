@@ -638,6 +638,73 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+  /lightnovels/{id}/cover:
+    patch:
+      summary: Uploader une couverture pour un light novel
+      description: |
+        Upload une image de couverture pour un light novel existant.
+        
+        **⚠️ Requiert les privilèges administrateur.**
+      tags:
+        - Light Novels
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID du light novel
+          schema:
+            type: string
+            pattern: "^[0-9a-fA-F]{24}$"
+            example: "507f1f77bcf86cd799439011"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                cover:
+                  type: string
+                  format: binary
+                  description: Image de couverture (max 5Mo)
+              required:
+                - cover
+      responses:
+        "200":
+          description: Couverture uploadée avec succès
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LightNovel"
+        "400":
+          description: Aucun fichier téléchargé
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Aucun fichier téléchargé"
+        "401":
+          description: Token manquant, mal formé, invalide ou expiré
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Token invalide ou expiré"
+        "500":
+          description: Erreur serveur
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
   /users:
     get:
       summary: Récupérer tous les utilisateurs

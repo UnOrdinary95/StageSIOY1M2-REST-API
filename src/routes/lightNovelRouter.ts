@@ -1,6 +1,7 @@
 import { Router } from "express";
-import { getLightNovels, getLightNovelById, deleteLightNovelById, createLightNovel, updateLightNovelById } from "../controllers/lightNovelController.js";
+import { getLightNovels, getLightNovelById, deleteLightNovelById, createLightNovel, updateLightNovelById, uploadCoverById } from "../controllers/lightNovelController.js";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
+import { uploadCoverMiddleware } from "../middlewares/uploadCoverMiddleware.js";
 
 const lightNovelRouter = Router();
 
@@ -13,6 +14,7 @@ lightNovelRouter.get("/:id", getLightNovelById);
 
 // UPDATE
 lightNovelRouter.put("/:id", authMiddleware, updateLightNovelById);
+lightNovelRouter.patch("/:id/cover", authMiddleware, uploadCoverMiddleware, uploadCoverById);
 
 // DELETE
 lightNovelRouter.delete("/:id", authMiddleware, deleteLightNovelById);
