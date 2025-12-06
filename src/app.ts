@@ -6,6 +6,8 @@ import swaggerUi from 'swagger-ui-express';
 import YAML from "yamljs";
 import { COVERS_DIR } from "./constants.js";
 import multer from "multer";
+import { isProd } from "./constants.js";
+import cookieParser from "cookie-parser";
 
 import testRouter from "./routes/testRouter.js";
 import userRouter from "./routes/userRouter.js";
@@ -21,9 +23,15 @@ const authLimiter = rateLimit({
     max: 10 // 10 tentatives
 });
 
-app.use(cors());
-// app.use(cors({origin: 'https://example.com'})); 
+
+const origin = isProd ? 'https://novelya.unordinary.dev' : 'http://localhost:4200';
+app.use(cors({
+    origin: origin,
+    credentials: true // Autorise l'envoi des cookies
+}));
+
 app.use(express.json()); // Ajoute Content-Type: application/json automatiquement
+app.use(cookieParser()); // Parse les cookies
 
 const swaggerDocument = YAML.load("src/docs/swagger.yaml");
 

@@ -12,11 +12,11 @@ servers:
 
 components:
   securitySchemes:
-    BearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-      description: Authentification JWT. Format: `Bearer <token>`
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: token
+      description: Authentification JWT via cookie HttpOnly. Le token est automatiquement envoyé avec les requêtes.
   schemas:
     User:
       type: object
@@ -323,7 +323,10 @@ paths:
   /login:
     post:
       summary: Se connecter avec un compte existant
-      description: Permet à un utilisateur de se connecter et recevoir un token JWT
+      description: |
+        Permet à un utilisateur de se connecter. Le token JWT est automatiquement stocké dans un cookie HttpOnly sécurisé.
+        
+        **Cookie défini:** `token` (HttpOnly, Secure en production, SameSite=lax, durée 1h)
       tags:
         - Authentication
       requestBody:
@@ -350,7 +353,13 @@ paths:
               password: "Motdepasse123"
       responses:
         "200":
-          description: Connexion réussie
+          description: Connexion réussie. Le token JWT est défini dans un cookie HttpOnly.
+          headers:
+            Set-Cookie:
+              description: Cookie contenant le token JWT
+              schema:
+                type: string
+                example: "token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...; HttpOnly; Secure; SameSite=Lax; Max-Age=3600; Path=/"
           content:
             application/json:
               schema:
@@ -359,10 +368,6 @@ paths:
                   success:
                     type: boolean
                     example: true
-                  token:
-                    type: string
-                    description: Token JWT pour l'authentification
-                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
                   userId:
                     type: string
                     description: ID de l'utilisateur connecté
@@ -399,6 +404,30 @@ paths:
                     type: string
                     example: "Identifiants invalides"
 
+  /logout:
+    post:
+      summary: Se déconnecter
+      description: |
+        Déconnecte l'utilisateur en supprimant le cookie contenant le token JWT.
+        
+        **Cookie supprimé:** `token`
+      tags:
+        - Authentication
+      responses:
+        "200":
+          description: Déconnexion réussie. Le cookie JWT est supprimé.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Déconnexion réussie"
+
   /lightnovels:
     post:
       summary: Créer un nouveau light novel
@@ -409,7 +438,7 @@ paths:
       tags:
         - Light Novels
       security:
-        - BearerAuth: []
+        - CookieAuth: []
       requestBody:
         required: true
         content:
@@ -433,7 +462,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/LightNovel"
         "401":
-          description: Token manquant, mal formé, invalide ou expiré
+          description: Token manquant, invalide ou expiré (cookie non envoyé ou invalide)
           content:
             application/json:
               schema:
@@ -441,7 +470,7 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: "Token manquant ou mal formé"
+                    example: "Token manquant"
         "403":
           description: Accès refusé (privilèges insuffisants)
           content:
@@ -548,7 +577,7 @@ paths:
       tags:
         - Light Novels
       security:
-        - BearerAuth: []
+        - CookieAuth: []
       parameters:
         - name: id
           in: path
@@ -620,7 +649,7 @@ paths:
       tags:
         - Light Novels
       security:
-        - BearerAuth: []
+        - CookieAuth: []
       parameters:
         - name: id
           in: path
@@ -678,7 +707,7 @@ paths:
       tags:
         - Light Novels
       security:
-        - BearerAuth: []
+        - CookieAuth: []
       parameters:
         - name: id
           in: path
@@ -745,7 +774,7 @@ paths:
       tags:
         - Users
       security:
-        - BearerAuth: []
+        - CookieAuth: []
       responses:
         "200":
           description: Liste des utilisateurs récupérée avec succès
@@ -792,7 +821,7 @@ paths:
       tags:
         - Users
       security:
-        - BearerAuth: []
+        - CookieAuth: []
       parameters:
         - name: id
           in: path
@@ -845,7 +874,7 @@ paths:
       tags:
         - Users
       security:
-        - BearerAuth: []
+        - CookieAuth: []
       parameters:
         - name: id
           in: path
@@ -911,7 +940,7 @@ paths:
       tags:
         - Users
       security:
-        - BearerAuth: []
+        - CookieAuth: []
       parameters:
         - name: id
           in: path
@@ -973,7 +1002,7 @@ paths:
      tags:
        - Users
      security:
-       - BearerAuth: []
+       - CookieAuth: []
      parameters:
        - name: id
          in: path
@@ -1054,7 +1083,7 @@ paths:
      tags:
        - Users
      security:
-       - BearerAuth: []
+       - CookieAuth: []
      parameters:
        - name: id
          in: path
@@ -1120,7 +1149,7 @@ paths:
      tags:
        - Users
      security:
-       - BearerAuth: []
+       - CookieAuth: []
      parameters:
        - name: id
          in: path
