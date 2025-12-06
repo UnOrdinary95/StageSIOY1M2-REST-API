@@ -1,10 +1,11 @@
 import { Router } from "express";
-import { deleteUserById, getUserById, getUsers, updatedWishlistById, updateUserById, updateUserCartById, updateUserPurchaseHistoryById } from "../controllers/userController.js";
+import { deleteUserById, getCurrentUser, getUserById, getUsers, updatedWishlistById, updateUserById, updateUserCartById, updateUserPurchaseHistoryById } from "../controllers/userController.js";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 
 const userRouter = Router();
 
 // READ
+userRouter.get("/me", authMiddleware, getCurrentUser);
 userRouter.get("/", authMiddleware, getUsers);
 userRouter.get("/:id", authMiddleware, getUserById);
 

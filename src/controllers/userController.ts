@@ -5,6 +5,16 @@ import { getAuthUser, checkUserAccess, checkAdminAccess, checkSelfAccess } from 
 import { logger } from "../utils/loggerUtils.js";
 
 // READ
+export const getCurrentUser = async (req: Request, res: Response): Promise<void> => {
+    const currentUser = getAuthUser(req);
+    if (!currentUser) {
+        res.status(401).json({ error: "Utilisateur non authentifié" });
+        return;
+    }
+
+    res.status(200).json({ id: currentUser.userId, isAdmin: currentUser.isAdmin });
+};
+
 export const getUsers = async (req: Request, res: Response): Promise<void> => {
     const currentUser = getAuthUser(req);  // Récupère l'utilisateur authentifié
 
