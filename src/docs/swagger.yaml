@@ -294,7 +294,20 @@ paths:
                     type: string
                     example: "507f1f77bcf86cd799439011"
         "400":
-          description: Données manquantes ou email déjà utilisé
+          description: Données manquantes ou erreur de validation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Tous les champs sont requis"
+        "409":
+          description: Email déjà utilisé (Conflict)
           content:
             application/json:
               schema:

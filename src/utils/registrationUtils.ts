@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import e, { Request, Response } from "express";
 import { getDb } from "../config/db.js";
 import bcrypt from "bcrypt";
 import { User } from "../interfaces/User.js";
@@ -59,7 +59,8 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
 
     const validation = await validateInput(user.name, user.email, user.password);
     if (!validation.valid) {
-        res.status(400).json({ success: false, message: validation.error });
+        const statusCode = validation.error === "Email déjà utilisé" ? 409 : 400;
+        res.status(statusCode).json({ success: false, message: validation.error });
         return;
     }
 
