@@ -20,3 +20,11 @@ build/
 # GitHub
 .github/
 
+# Python
+__pycache__/
+requirements.txt
+.venv/
+*.py
+*.pyc
+books.txt
+books_data.json
