@@ -4,7 +4,7 @@ import { LightNovel, LightNovelDB } from "../interfaces/LightNovel.js";
 import { CartItem } from "../interfaces/CartItem.js";
 import { convertObjectIdToLightNovelIdStr, convertLightNovelIdStrToObjectId } from "../utils/lightNovelUtils.js";
 import { logger } from "../utils/loggerUtils.js";
-import { COLLECTIONS, GENRES } from "../constants.js";
+import { COLLECTIONS } from "../constants.js";
 
 // CREATE
 export const insertOneLightNovel = async (lightNovel: LightNovel): Promise<LightNovel> => {
@@ -23,7 +23,7 @@ export const insertOneLightNovel = async (lightNovel: LightNovel): Promise<Light
 export const findAllLightNovels = async (): Promise<LightNovel[]> => {
     try {
         const db = getDb();
-        const lightNovels = await db.collection<LightNovelDB>(COLLECTIONS.LIGHT_NOVEL).find().toArray();
+        const lightNovels = await db.collection<LightNovelDB>(COLLECTIONS.LIGHT_NOVEL).find().sort({ title: 1 }).toArray();
         return lightNovels.map(lightNovel => convertObjectIdToLightNovelIdStr(lightNovel));
     } catch (err) {
         logger.error('findAllLightNovels', err);
@@ -34,7 +34,7 @@ export const findAllLightNovels = async (): Promise<LightNovel[]> => {
 export const findAllLightNovelsByGenre = async (genre: string): Promise<LightNovel[]> => {
     try {
         const db = getDb();
-        const lightNovels = await db.collection<LightNovelDB>(COLLECTIONS.LIGHT_NOVEL).find({ genres: genre }).toArray();
+        const lightNovels = await db.collection<LightNovelDB>(COLLECTIONS.LIGHT_NOVEL).find({ genres: genre }).sort({ title: 1 }).toArray();
         return lightNovels.map(lightNovel => convertObjectIdToLightNovelIdStr(lightNovel));
     } catch (err) {
         logger.error('findAllLightNovelsByGenre', err);
