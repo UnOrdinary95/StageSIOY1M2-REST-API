@@ -16,7 +16,14 @@ import authRouter from "./routes/authRouter.js";
 
 const app = express();
 
-app.use(helmet()); // Permet la sécurisation des en-têtes HTTP
+app.use(helmet(
+    {
+        // Autorise les ressources statiques (images, CSS, etc.) à être chargées depuis une autre origine
+        // En prod: same-site pour plus de sécurité (front: novelya.unordinary.dev et back: api.novelya.unordinary.dev partagent le domaine unordinary.dev)
+        // En dev: cross-origin pour localhost:3000 et localhost:4200 sur des ports différents
+        crossOriginResourcePolicy: { policy: isProd ? "same-site" : "cross-origin" }
+    }
+)); // Sécurise les en-têtes HTTP
 
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes

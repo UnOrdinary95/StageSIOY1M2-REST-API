@@ -5,6 +5,7 @@ import { LightNovel } from "../interfaces/LightNovel.js";
 import { checkAdminAccess } from "../utils/authUserUtils.js";
 import { logger } from "../utils/loggerUtils.js";
 import { GENRES } from "../constants.js";
+import { buildCoverUrl } from "../utils/lightNovelUtils.js";
 
 // CREATE
 export const createLightNovel = async (req: Request, res: Response): Promise<void> => {
@@ -26,7 +27,8 @@ export const createLightNovel = async (req: Request, res: Response): Promise<voi
 export const getLightNovels = async (req: Request, res: Response): Promise<void> => {
     try {
         const lightNovels = await findAllLightNovels();
-        res.status(200).json(lightNovels);
+        const response = lightNovels.map(ln => ({ ...ln, cover: ln.cover ? buildCoverUrl(ln.cover) : null }));
+        res.status(200).json(response);
     } catch (err) {
         logger.error('getLightNovels', err);
         res.status(500).json({ error: "Erreur lors de la récupération des light novels" });
@@ -42,7 +44,8 @@ export const getLightNovelsByGenre = async (req: Request, res: Response): Promis
 
     try {
         const lightNovels = await findAllLightNovelsByGenre(genre);
-        res.status(200).json(lightNovels);
+        const response = lightNovels.map(ln => ({ ...ln, cover: ln.cover ? buildCoverUrl(ln.cover) : null }));
+        res.status(200).json(response);
     } catch (err) {
         logger.error('getLightNovelsByGenre', err);
         res.status(500).json({ error: "Erreur lors de la récupération des light novels par genre" });
@@ -53,7 +56,8 @@ export const getLightNovelById = async (req: Request, res: Response): Promise<vo
     const lightNovelId = req.params.id;
     try {
         const lightNovel = await findOneLightNovel(lightNovelId);
-        res.status(200).json(lightNovel);
+        const response = { ...lightNovel, cover: lightNovel.cover ? buildCoverUrl(lightNovel.cover) : null };
+        res.status(200).json(response);
     } catch (err) {
         logger.error('getLightNovelById', err);
         res.status(500).json({ error: "Erreur lors de la récupération du light novel" });

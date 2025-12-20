@@ -16,3 +16,9 @@ export const convertObjectIdToLightNovelIdStr = (lightNovel: LightNovelDB): Ligh
         _id: lightNovel._id?.toString()
     };
 };
+
+// Fonction utilitaire pour construire l'URL complète du cover
+export const buildCoverUrl = (coverPath: string): string => {
+    const baseUrl = process.env.API_BASE_URL || "http://localhost:3000";
+    return `${baseUrl}/${coverPath}`;
+};
