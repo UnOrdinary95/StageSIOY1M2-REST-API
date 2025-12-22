@@ -56,6 +56,18 @@ export const findOneLightNovel = async (lightNovelID: string): Promise<LightNove
     }
 };
 
+export const findLightNovelsByName = async (name: string): Promise<LightNovel[]> => {
+    try {
+        const db = getDb();
+        // "i" = insensible à la casse (case-insensitive)
+        const lightNovels = await db.collection<LightNovelDB>(COLLECTIONS.LIGHT_NOVEL).find({ title: { $regex: name, $options: "i" } }).sort({ title: 1 }).toArray();
+        return lightNovels.map(lightNovel => convertObjectIdToLightNovelIdStr(lightNovel));
+    } catch (err) {
+        logger.error('findLightNovelsByName', err);
+        throw new Error("Erreur lors de la recherche des light novels");
+    }
+};
+
 // UPDATE
 export const updateOneLightNovel = async (lightNovelID: string, lightNovelData: Partial<LightNovel>): Promise<LightNovel> => {
     try {

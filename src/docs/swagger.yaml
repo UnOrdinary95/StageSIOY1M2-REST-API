@@ -522,6 +522,36 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+  /lightnovels/search/{name}:
+    get:
+      summary: Rechercher des light novels par nom
+      description: Récupère la liste des light novels correspondant à un nom spécifique (recherche insensible à la casse)
+      tags:
+        - Light Novels
+      parameters:
+        - name: name
+          in: path
+          required: true
+          description: Nom ou partie du nom du light novel à rechercher
+          schema:
+            type: string
+            example: "Slayer"
+      responses:
+        "200":
+          description: Liste des light novels correspondant à la recherche
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LightNovelSummary"
+        "500":
+          description: Erreur serveur
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
   /lightnovels/genre/{genre}:
     get:
       summary: Récupérer les light novels par genre

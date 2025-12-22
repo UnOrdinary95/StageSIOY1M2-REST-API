@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { deleteOneLightNovel, findAllLightNovels, findAllLightNovelsByGenre, findOneLightNovel, insertOneLightNovel, updateOneLightNovel } from "../models/lightNovelModel.js";
+import { deleteOneLightNovel, findAllLightNovels, findAllLightNovelsByGenre, findOneLightNovel, insertOneLightNovel, updateOneLightNovel, findLightNovelsByName } from "../models/lightNovelModel.js";
 import { getAuthUser } from "../utils/authUserUtils.js";
 import { LightNovel } from "../interfaces/LightNovel.js";
 import { checkAdminAccess } from "../utils/authUserUtils.js";
@@ -61,6 +61,18 @@ export const getLightNovelById = async (req: Request, res: Response): Promise<vo
     } catch (err) {
         logger.error('getLightNovelById', err);
         res.status(500).json({ error: "Erreur lors de la récupération du light novel" });
+    }
+};
+
+export const searchLightNovelByName = async (req: Request, res: Response): Promise<void> => {
+    const name = req.params.name;
+    try {
+        const lightNovels = await findLightNovelsByName(name);
+        const response = lightNovels.map(ln => ({ ...ln, cover: ln.cover ? buildCoverUrl(ln.cover) : null }));
+        res.status(200).json(response);
+    } catch (err) {
+        logger.error('searchLightNovelByName', err);
+        res.status(500).json({ error: "Erreur lors de la recherche des light novels" });
     }
 };
 
