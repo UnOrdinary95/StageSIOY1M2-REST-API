@@ -28,7 +28,10 @@ export const findAllUsers = async (): Promise<User[]> => {
     try {
         const db = getDb();
         const users = await db.collection<UserDB>(COLLECTIONS.USER).find().toArray();
-        return users.map(user => convertObjectIdToUserIdStr(user));
+        return users.map(user => {
+            const { password, ...userWithoutPassword } = convertObjectIdToUserIdStr(user);
+            return userWithoutPassword as User;
+        });
     }
     catch (err) {
         logger.error('findAllUsers', err);
@@ -43,7 +46,8 @@ export const findOneUser = async (userID: string): Promise<User> => {
         if (!user) {
             throw new Error("Utilisateur non trouvé");
         }
-        return convertObjectIdToUserIdStr(user);
+        const { password, ...userWithoutPassword } = convertObjectIdToUserIdStr(user);
+        return userWithoutPassword as User;
     }
     catch (err) {
         logger.error('findOneUser', err);

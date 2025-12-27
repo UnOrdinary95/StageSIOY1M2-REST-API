@@ -34,10 +34,6 @@ components:
           format: email
           description: Adresse email de l'utilisateur
           example: "john.doe@example.com"
-        password:
-          type: string
-          description: Mot de passe de l'utilisateur
-          example: "Motdepasse123"
         cart:
           type: array
           description: Panier de l'utilisateur
@@ -57,7 +53,6 @@ components:
       required:
         - name
         - email
-        - password
 
     UserInput:
       type: object
@@ -71,14 +66,9 @@ components:
           format: email
           description: Adresse email de l'utilisateur
           example: "john.doe@example.com"
-        password:
-          type: string
-          description: Mot de passe de l'utilisateur
-          example: "Motdepasse123"
       required:
         - name
         - email
-        - password
 
     LightNovel:
       type: object
@@ -811,7 +801,7 @@ paths:
     get:
       summary: Récupérer l'utilisateur courant
       description: |
-        Récupère les informations de l'utilisateur authentifié (ID et statut admin uniquement).
+        Récupère l'objet utilisateur complet de l'utilisateur authentifié.
       tags:
         - Users
       security:
@@ -822,16 +812,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  id:
-                    type: string
-                    description: ID de l'utilisateur
-                    example: "507f1f77bcf86cd799439011"
-                  isAdmin:
-                    type: boolean
-                    description: Indique si l'utilisateur est administrateur
-                    example: false
+                $ref: "#/components/schemas/User"
         "401":
           description: Token manquant, mal formé, invalide ou expiré
           content:

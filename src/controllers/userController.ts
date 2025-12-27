@@ -12,7 +12,14 @@ export const getCurrentUser = async (req: Request, res: Response): Promise<void>
         return;
     }
 
-    res.status(200).json({ id: currentUser.userId, isAdmin: currentUser.isAdmin });
+    try {
+        const user = await findOneUser(currentUser.userId);
+        res.status(200).json(user);
+    }
+    catch (err) {
+        logger.error('getCurrentUser', err);
+        res.status(500).json({ error: "Erreur lors de la récupération de l'utilisateur" });
+    }
 };
 
 export const getUsers = async (req: Request, res: Response): Promise<void> => {
