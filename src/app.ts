@@ -27,7 +27,7 @@ app.use(helmet(
 
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 10 // 10 tentatives
+    max: 15 // 15 tentatives
 });
 
 
@@ -48,6 +48,7 @@ app.use("/users", userRouter);
 app.use("/lightnovels", lightNovelRouter);
 app.use("/covers", express.static(COVERS_DIR)); // Service de fichiers statiques pour les couvertures
 app.use("/", authLimiter, authRouter); // Applique le rate limiter uniquement aux routes d'authentification
+// app.use("/", authRouter); // Temporaire sans rate limiter
 
 // Middleware d'erreur global pour multer et autres
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
