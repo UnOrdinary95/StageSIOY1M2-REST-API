@@ -6,7 +6,8 @@
         "test": "echo \"Error: no test specified\" && exit 1",
         "start": "node dist/server.js",
         "dev": "tsx watch src/server.ts",
-        "dev2": "nodemon -L --watch src --ext ts --exec \"tsx src/server.ts\""
+        "dev2": "nodemon -L --watch src --ext ts --exec \"tsx src/server.ts\"",
+        "build": "tsc"
     },
     "keywords": [],
     "author": "",
