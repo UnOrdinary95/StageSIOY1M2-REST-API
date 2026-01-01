@@ -990,6 +990,16 @@ paths:
                   error:
                     type: string
                     example: "Accès refusé : privilèges insuffisants"
+        "409":
+          description: Email déjà utilisé (Conflict)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Email déjà utilisé"
         "500":
           description: Erreur serveur ou utilisateur non trouvé
           content:

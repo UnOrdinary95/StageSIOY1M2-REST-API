@@ -67,6 +67,10 @@ export const updateUserById = async (req: Request, res: Response): Promise<void>
     }
     catch (err) {
         logger.error('updateUserById', err);
+        if ((err as Error).message === "Email déjà utilisé") {
+            res.status(409).json({ error: (err as Error).message });
+            return;
+        }
         res.status(500).json({ error: "Erreur lors de la mise à jour de l'utilisateur" });
     }
 };
