@@ -95,9 +95,16 @@ export const updateOneUser = async (userID: string, userData: Partial<User>): Pr
             await lightNovelExists(safeData.cart);
         }
 
+        // Nettoie les champs vides avant
+        // fromEntries => recrée un objet à partir d'une liste de paires [clé, valeur]
+        // entries => renvoie un tableau des paires [clé, valeur] d'un objet
+        const cleanData = Object.fromEntries(
+            Object.entries(safeData).filter(([_, value]) => value !== '' && value !== undefined)
+        );
+
         const result = await db.collection(COLLECTIONS.USER).updateOne(
             { _id: new ObjectId(userID) },
-            { $set: safeData }
+            { $set: cleanData }
         );
         if (result.matchedCount === 0) {
             throw new Error("Utilisateur non trouvé");
