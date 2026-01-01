@@ -35,14 +35,14 @@ export const validateInput = async (name: string, email: string, password: strin
     return { valid: true };
 };
 
-export const validateUserData = async (userData: Partial<User>): Promise<{ valid: boolean; error?: string }> => {
+export const validateUserData = async (userData: Partial<User>, currentEmail?: string): Promise<{ valid: boolean; error?: string }> => {
     if (userData.name && !PATTERNS.name.test(userData.name)) {
         return { valid: false, error: "Le nom doit contenir uniquement des lettres, tirets et underscores" };
     }
     if (userData.email && !PATTERNS.email.test(userData.email)) {
         return { valid: false, error: "Email invalide" };
     }
-    if (userData.email && await emailExists(userData.email)) {
+    if (userData.email && userData.email !== currentEmail && await emailExists(userData.email)) {
         return { valid: false, error: "Email déjà utilisé" };
     }
     if (userData.password && !PATTERNS.password.test(userData.password)) {
