@@ -80,7 +80,7 @@ export const updateOneUser = async (userID: string, userData: Partial<User>): Pr
             throw new Error("Aucune donnée à mettre à jour");
         }
 
-        const validation = validateUserData(safeData);
+        const validation = await validateUserData(safeData);
         if (!validation.valid) {
             throw new Error(validation.error);
         }
