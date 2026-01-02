@@ -1,4 +1,17 @@
-db = db.getSiblingDB("novelya"); // Bascule sur la base de données "novelya"
+db = db.getSiblingDB("admin");
+
+// Crée l'utilisateur root si n'existe pas
+if (!db.getUser("admin")) {
+    db.createUser({
+        user: "admin",
+        pwd: process.env.MONGO_PASSWORD || "changeme",
+        roles: [{ role: "root", db: "admin" }]
+    });
+    print("Admin user created successfully");
+}
+
+// Bascule sur la base de données "novelya"
+db = db.getSiblingDB("novelya");
 
 // Crée si ils n'existent pas déjà
 db.createCollection("LightNovel");
