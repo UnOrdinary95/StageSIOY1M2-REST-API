@@ -5,7 +5,7 @@ if (!db.getUser("admin")) {
     db.createUser({
         user: "admin",
         pwd: process.env.MONGO_PASSWORD || "changeme",
-        roles: [{ role: "root", db: "admin" }]
+        roles: [{ role: "root", db: "admin" }],
     });
     print("Admin user created successfully");
 }
