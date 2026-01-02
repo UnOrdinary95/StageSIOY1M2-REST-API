@@ -10,7 +10,7 @@ services:
         env_file: .env
         environment:
             - TZ=Europe/Paris
-            - NODE_ENV=production
+            - NODE_ENV=PROD
         depends_on:
             mongodb:
                 condition: service_healthy
