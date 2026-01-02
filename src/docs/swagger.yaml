@@ -7,6 +7,8 @@ info:
   version: 1.0.0
 
 servers:
+  - url: https://api.novelya.unordinary.dev
+    description: Serveur de production
   - url: http://localhost:3000
     description: Serveur local de développement
 
